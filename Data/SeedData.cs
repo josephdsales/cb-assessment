@@ -40,10 +40,15 @@ public static class SeedData
 
         var subjects = new List<Subject>
         {
-            new Subject { Name = "Mathematics", Code = "MATH101" },
+            new Subject { Name = "Filipino", Code = "FIL101" },
             new Subject { Name = "English", Code = "ENG101" },
+            new Subject { Name = "Mathematics", Code = "MATH101" },
             new Subject { Name = "Science", Code = "SCI101" },
-            new Subject { Name = "History", Code = "HIS101" }
+            new Subject { Name = "Araling Panlipunan", Code = "AP101" },
+            new Subject { Name = "Values Education", Code = "VE101" },
+            new Subject { Name = "TLE", Code = "TLE101" },
+            new Subject { Name = "MAPEH", Code = "MAPEH101" },
+            new Subject { Name = "Add-ons", Code = "ADD101" }
         };
         context.Subjects.AddRange(subjects);
         context.SaveChanges();
