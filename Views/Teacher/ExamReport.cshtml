@@ -2,7 +2,12 @@
 @{
     ViewData["Title"] = "Exam Report";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    var exam = ViewBag.Exam;
+    var exam = (CBAssessment.Models.Exam)ViewBag.Exam;
+    var totalStudents = (int)ViewBag.TotalStudents;
+    var averageScore = (double)ViewBag.AverageScore;
+    var highestScore = (double)ViewBag.HighestScore;
+    var lowestScore = (double)ViewBag.LowestScore;
+    var totalPoints = exam.Questions.Sum(q => q.Points);
 }
 
 <div class="page-header">
@@ -12,19 +17,19 @@
 
 <div class="report-summary">
     <div class="report-card">
-        <div class="report-number">@ViewBag.TotalStudents</div>
+        <div class="report-number">@totalStudents</div>
         <div class="report-label">Total Students</div>
     </div>
     <div class="report-card">
-        <div class="report-number">@ViewBag.AverageScore.ToString("F1")%</div>
+        <div class="report-number">@averageScore.ToString("F1")%</div>
         <div class="report-label">Average Score</div>
     </div>
     <div class="report-card">
-        <div class="report-number">@ViewBag.HighestScore.ToString("F1")%</div>
+        <div class="report-number">@highestScore.ToString("F1")%</div>
         <div class="report-label">Highest Score</div>
     </div>
     <div class="report-card">
-        <div class="report-number">@ViewBag.LowestScore.ToString("F1")%</div>
+        <div class="report-number">@lowestScore.ToString("F1")%</div>
         <div class="report-label">Lowest Score</div>
     </div>
 </div>
@@ -32,7 +37,7 @@
 <div class="info-banner">
     <strong>Subject:</strong> @(exam.Subject?.Name ?? "N/A") |
     <strong>Questions:</strong> @exam.Questions.Count |
-    <strong>Total Points:</strong> @exam.Questions.Sum(q => q.Points)
+    <strong>Total Points:</strong> @totalPoints
 </div>
 
 @if (!Model.Any())

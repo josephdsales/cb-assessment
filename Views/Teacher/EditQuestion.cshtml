@@ -2,6 +2,9 @@
 @{
     ViewData["Title"] = "Edit Question";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var isMC = Model.Type == CBAssessment.Models.QuestionType.MultipleChoice;
+    var isTF = Model.Type == CBAssessment.Models.QuestionType.TrueFalse;
+    var displayStyle = isTF ? "none" : "block";
 }
 
 <div class="page-header">
@@ -22,8 +25,16 @@
             <div class="form-group">
                 <label>Question Type</label>
                 <select name="type" id="questionType" onchange="toggleOptions()">
-                    <option value="MultipleChoice" @(Model.Type == CBAssessment.Models.QuestionType.MultipleChoice ? "selected" : "")>Multiple Choice</option>
-                    <option value="TrueFalse" @(Model.Type == CBAssessment.Models.QuestionType.TrueFalse ? "selected" : "")>True / False</option>
+                    @if (isMC)
+                    {
+                        <option value="MultipleChoice" selected="selected">Multiple Choice</option>
+                        <option value="TrueFalse">True / False</option>
+                    }
+                    else
+                    {
+                        <option value="MultipleChoice">Multiple Choice</option>
+                        <option value="TrueFalse" selected="selected">True / False</option>
+                    }
                 </select>
             </div>
             <div class="form-group">
@@ -32,7 +43,7 @@
             </div>
         </div>
 
-        <div class="options-container" id="extraOptions" style="display: @(Model.Type == CBAssessment.Models.QuestionType.TrueFalse ? "none" : "block")">
+        <div class="options-container" id="extraOptions" style="display: @displayStyle">
             <div class="form-group">
                 <label>Option A</label>
                 <input type="text" name="optionA" required id="optA" value="@Model.OptionA" />
@@ -56,17 +67,53 @@
         <div class="form-group">
             <label>Correct Answer</label>
             <select name="correctAnswer" id="correctAnswer">
-                @if (Model.Type == CBAssessment.Models.QuestionType.TrueFalse)
+                @if (isTF)
                 {
-                    <option value="A" @(Model.CorrectAnswer == "A" ? "selected" : "")>True</option>
-                    <option value="B" @(Model.CorrectAnswer == "B" ? "selected" : "")>False</option>
+                    @if (Model.CorrectAnswer == "A")
+                    {
+                        <option value="A" selected="selected">True</option>
+                        <option value="B">False</option>
+                    }
+                    else
+                    {
+                        <option value="A">True</option>
+                        <option value="B" selected="selected">False</option>
+                    }
                 }
                 else
                 {
-                    <option value="A" @(Model.CorrectAnswer == "A" ? "selected" : "")>A</option>
-                    <option value="B" @(Model.CorrectAnswer == "B" ? "selected" : "")>B</option>
-                    <option value="C" @(Model.CorrectAnswer == "C" ? "selected" : "")>C</option>
-                    <option value="D" @(Model.CorrectAnswer == "D" ? "selected" : "")>D</option>
+                    @if (Model.CorrectAnswer == "A")
+                    {
+                        <option value="A" selected="selected">A</option>
+                    }
+                    else
+                    {
+                        <option value="A">A</option>
+                    }
+                    @if (Model.CorrectAnswer == "B")
+                    {
+                        <option value="B" selected="selected">B</option>
+                    }
+                    else
+                    {
+                        <option value="B">B</option>
+                    }
+                    @if (Model.CorrectAnswer == "C")
+                    {
+                        <option value="C" selected="selected">C</option>
+                    }
+                    else
+                    {
+                        <option value="C">C</option>
+                    }
+                    @if (Model.CorrectAnswer == "D")
+                    {
+                        <option value="D" selected="selected">D</option>
+                    }
+                    else
+                    {
+                        <option value="D">D</option>
+                    }
                 }
             </select>
         </div>

@@ -2,7 +2,8 @@
 @{
     ViewData["Title"] = "Exam Result";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    var percentage = ViewBag.Percentage;
+    var percentage = (double)ViewBag.Percentage;
+    var studentAnswers = (List<CBAssessment.Models.StudentAnswer>)ViewBag.StudentAnswers;
 }
 
 <div class="page-header">
@@ -39,30 +40,31 @@
     </div>
 
     <h2>Question Review</h2>
-    @foreach (var sa in ViewBag.StudentAnswers)
+    @{ int qIdx = 1; }
+    @foreach (var sa in studentAnswers)
     {
         var q = sa.Question;
         <div class="question-card review-question @(sa.IsCorrect ? "correct" : "incorrect")">
             <div class="question-header">
-                <span class="q-number">Q@(ViewBag.StudentAnswers.IndexOf(sa) + 1)</span>
-                <span class="result-icon">@(sa.IsCorrect ? "✓" : "✗")</span>
+                <span class="q-number">Q@(qIdx++)</span>
+                <span class="result-icon">@(sa.IsCorrect ? "\u2713" : "\u2717")</span>
             </div>
-            <p class="question-text">@q.Text</p>
+            <p class="question-text">@q?.Text</p>
             <div class="options-display">
-                @if (q.Type == CBAssessment.Models.QuestionType.TrueFalse)
+                @if (q?.Type == CBAssessment.Models.QuestionType.TrueFalse)
                 {
                     <div class="option @(sa.SelectedAnswer == "A" ? "selected" : "") @(q.CorrectAnswer == "A" ? "correct-opt" : "")">True</div>
                     <div class="option @(sa.SelectedAnswer == "B" ? "selected" : "") @(q.CorrectAnswer == "B" ? "correct-opt" : "")">False</div>
                 }
                 else
                 {
-                    <div class="option @(sa.SelectedAnswer == "A" ? "selected" : "") @(q.CorrectAnswer == "A" ? "correct-opt" : "")">A. @q.OptionA</div>
-                    <div class="option @(sa.SelectedAnswer == "B" ? "selected" : "") @(q.CorrectAnswer == "B" ? "correct-opt" : "")">B. @q.OptionB</div>
-                    @if (q.OptionC != null)
+                    <div class="option @(sa.SelectedAnswer == "A" ? "selected" : "") @(q?.CorrectAnswer == "A" ? "correct-opt" : "")">A. @q?.OptionA</div>
+                    <div class="option @(sa.SelectedAnswer == "B" ? "selected" : "") @(q?.CorrectAnswer == "B" ? "correct-opt" : "")">B. @q?.OptionB</div>
+                    @if (q?.OptionC != null)
                     {
                         <div class="option @(sa.SelectedAnswer == "C" ? "selected" : "") @(q.CorrectAnswer == "C" ? "correct-opt" : "")">C. @q.OptionC</div>
                     }
-                    @if (q.OptionD != null)
+                    @if (q?.OptionD != null)
                     {
                         <div class="option @(sa.SelectedAnswer == "D" ? "selected" : "") @(q.CorrectAnswer == "D" ? "correct-opt" : "")">D. @q.OptionD</div>
                     }
@@ -70,8 +72,8 @@
             </div>
             <div class="answer-info">
                 Your answer: <strong>@(sa.SelectedAnswer == "" ? "No answer" : sa.SelectedAnswer)</strong> |
-                Correct: <strong>@q.CorrectAnswer</strong> |
-                Points: <strong>@(sa.IsCorrect ? q.Points : 0) / @q.Points</strong>
+                Correct: <strong>@q?.CorrectAnswer</strong> |
+                Points: <strong>@(sa.IsCorrect ? q?.Points : 0) / @q?.Points</strong>
             </div>
         </div>
     }
