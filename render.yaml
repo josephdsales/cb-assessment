@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: cb-assessment
+    runtime: dotnet
+    plan: free
+    buildCommand: dotnet publish -c Release -o ./render-build/output
+    startCommand: dotnet ./render-build/output/CBAssessment.dll
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ASPNETCORE_URLS
+        value: http://0.0.0.0:10000
+      - key: DOTNET_ENVIRONMENT
+        value: Production
