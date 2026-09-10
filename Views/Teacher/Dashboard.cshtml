@@ -1,0 +1,83 @@
+@model List<CBAssessment.Models.Exam>
+@{
+    ViewData["Title"] = "Teacher Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="page-header">
+    <h1>Teacher Dashboard</h1>
+    <a asp-action="CreateExam" class="btn btn-primary">+ Create Exam</a>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-number">@ViewBag.TotalExams</div>
+        <div class="stat-label">Total Exams</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">@ViewBag.TotalStudents</div>
+        <div class="stat-label">Total Students</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">@ViewBag.TotalResults</div>
+        <div class="stat-label">Exam Submissions</div>
+    </div>
+</div>
+
+<h2>My Exams</h2>
+
+@if (!Model.Any())
+{
+    <div class="empty-state">
+        <p>No exams created yet.</p>
+        <a asp-action="CreateExam" class="btn btn-primary">Create Your First Exam</a>
+    </div>
+}
+else
+{
+    <div class="exam-list">
+        @foreach (var exam in Model)
+        {
+            var questionCount = exam.Questions?.Count ?? 0;
+            var resultCount = exam.Results?.Count ?? 0;
+            <div class="exam-card">
+                <div class="exam-card-header">
+                    <h3>@exam.Title</h3>
+                    <span class="badge badge-@exam.Status.ToString().ToLower()">@exam.Status</span>
+                </div>
+                <div class="exam-card-body">
+                    <p><strong>Subject:</strong> @(exam.Subject?.Name ?? "N/A")</p>
+                    <p><strong>Questions:</strong> @questionCount | <strong>Submissions:</strong> @resultCount</p>
+                    <p><strong>Time Limit:</strong> @exam.TimeLimitMinutes mins</p>
+                    @if (exam.Description != null)
+                    {
+                        <p class="exam-desc">@exam.Description</p>
+                    }
+                </div>
+                <div class="exam-card-actions">
+                    <a asp-action="AddQuestions" asp-route-examId="@exam.Id" class="btn btn-sm">Add Questions</a>
+                    <a asp-action="ViewQuestions" asp-route-examId="@exam.Id" class="btn btn-sm btn-info">View Questions</a>
+                    <a asp-action="ExamReport" asp-route-examId="@exam.Id" class="btn btn-sm btn-success">Report</a>
+                    @if (exam.Status == CBAssessment.Models.ExamStatus.Draft)
+                    {
+                        <form asp-action="ActivateExam" method="post" style="display:inline">
+                            <input type="hidden" name="examId" value="@exam.Id" />
+                            <button type="submit" class="btn btn-sm btn-primary">Activate</button>
+                        </form>
+                    }
+                    @if (exam.Status == CBAssessment.Models.ExamStatus.Active)
+                    {
+                        <form asp-action="CloseExam" method="post" style="display:inline">
+                            <input type="hidden" name="examId" value="@exam.Id" />
+                            <button type="submit" class="btn btn-sm btn-warning">Close</button>
+                        </form>
+                    }
+                    <form asp-action="DeleteExam" method="post" style="display:inline" onsubmit="return confirm('Delete this exam?')">
+                        <input type="hidden" name="examId" value="@exam.Id" />
+                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        }
+    </div>
+}

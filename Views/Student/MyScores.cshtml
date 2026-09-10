@@ -1,0 +1,60 @@
+@model List<CBAssessment.Models.ExamResult>
+@{
+    ViewData["Title"] = "My Scores";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="page-header">
+    <h1>My Scores</h1>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="empty-state">
+        <p>You haven't taken any exams yet.</p>
+        <a asp-action="Dashboard" class="btn btn-primary">Go to Dashboard</a>
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Exam</th>
+                    <th>Subject</th>
+                    <th>Score</th>
+                    <th>Percentage</th>
+                    <th>Correct</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var result in Model)
+                {
+                    var percentage = result.TotalPoints > 0 ? (double)result.Score / result.TotalPoints * 100 : 0;
+                    <tr>
+                        <td>@result.Exam?.Title</td>
+                        <td>@(result.Exam?.Subject?.Name ?? "N/A")</td>
+                        <td>@result.Score / @result.TotalPoints</td>
+                        <td>
+                            <span class="score-badge @(percentage >= 70 ? "score-pass" : "score-fail")">
+                                @percentage.ToString("F1")%
+                            </span>
+                        </td>
+                        <td>@result.CorrectAnswers / @result.TotalQuestions</td>
+                        <td>@result.SubmittedAt.ToString("MMM dd, yyyy HH:mm")</td>
+                        <td>
+                            <a asp-action="ViewResult" asp-route-resultId="@result.Id" class="btn btn-sm btn-info">View Details</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="report-actions">
+        <button onclick="window.print()" class="btn btn-primary">Print My Scores</button>
+    </div>
+}

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>@ViewData["Title"] - CB Assessment</title>
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a asp-controller="Home" asp-action="Index">CB Assessment</a>
+        </div>
+        <div class="nav-toggle" onclick="toggleNav()">☰</div>
+        <div class="nav-links" id="navLinks">
+            @if (User.Identity?.IsAuthenticated ?? false)
+            {
+                <span class="nav-user">@User.Identity.Name</span>
+                @if (User.IsInRole("Teacher"))
+                {
+                    <a asp-controller="Teacher" asp-action="Dashboard">Dashboard</a>
+                    <a asp-controller="Teacher" asp-action="Reports">Reports</a>
+                    <a asp-controller="Teacher" asp-action="ManageStudents">Students</a>
+                }
+                else
+                {
+                    <a asp-controller="Student" asp-action="Dashboard">Dashboard</a>
+                    <a asp-controller="Student" asp-action="MyScores">My Scores</a>
+                }
+                <a asp-controller="Home" asp-action="Logout" class="btn-logout">Logout</a>
+            }
+            else
+            {
+                <a asp-controller="Home" asp-action="Login">Login</a>
+                <a asp-controller="Home" asp-action="Register">Register</a>
+            }
+        </div>
+    </nav>
+
+    <main class="container">
+        @RenderBody()
+    </main>
+
+    <script>
+        function toggleNav() {
+            document.getElementById('navLinks').classList.toggle('show');
+        }
+    </script>
+</body>
+</html>

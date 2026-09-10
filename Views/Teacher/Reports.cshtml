@@ -1,0 +1,78 @@
+@model List<CBAssessment.Models.ExamResult>
+@{
+    ViewData["Title"] = "Reports";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="page-header">
+    <h1>Score Reports</h1>
+</div>
+
+<div class="filter-bar">
+    <label>Filter by Exam:</label>
+    <select id="examFilter" onchange="filterResults()">
+        <option value="all">All Exams</option>
+        @foreach (var exam in ViewBag.Exams)
+        {
+            <option value="@exam.Id">@exam.Title</option>
+        }
+    </select>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="empty-state">
+        <p>No exam submissions yet.</p>
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="data-table" id="resultsTable">
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Exam</th>
+                    <th>Score</th>
+                    <th>Percentage</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var result in Model)
+                {
+                    var percentage = result.TotalPoints > 0 ? (double)result.Score / result.TotalPoints * 100 : 0;
+                    <tr data-exam-id="@result.ExamId">
+                        <td>@result.Student?.FullName</td>
+                        <td>@result.Exam?.Title</td>
+                        <td>@result.Score / @result.TotalPoints</td>
+                        <td>
+                            <span class="score-badge @(percentage >= 70 ? "score-pass" : "score-fail")">
+                                @percentage.ToString("F1")%
+                            </span>
+                        </td>
+                        <td>@result.SubmittedAt.ToString("MMM dd, yyyy HH:mm")</td>
+                        <td>
+                            <a asp-action="ExamReport" asp-route-examId="@result.ExamId" class="btn btn-sm btn-info">View Report</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<script>
+    function filterResults() {
+        var examId = document.getElementById('examFilter').value;
+        var rows = document.querySelectorAll('#resultsTable tbody tr');
+        rows.forEach(function(row) {
+            if (examId === 'all' || row.getAttribute('data-exam-id') === examId) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+</script>

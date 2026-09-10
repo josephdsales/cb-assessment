@@ -1,0 +1,14 @@
+**/bin/
+**/obj/
+**/*.user
+**/*.suo
+**/.vs/
+**/.vscode/
+**/node_modules/
+**/*.db
+**/*.db-shm
+**/*.db-wal
+**/publish/
+**/.git/
+**/Dockerfile
+**/.dockerignore

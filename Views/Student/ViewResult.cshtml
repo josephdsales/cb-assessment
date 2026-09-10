@@ -1,0 +1,78 @@
+@model CBAssessment.Models.ExamResult
+@{
+    ViewData["Title"] = "Exam Result";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var percentage = ViewBag.Percentage;
+}
+
+<div class="page-header">
+    <h1>Exam Result</h1>
+    <a asp-action="Dashboard" class="btn btn-secondary">Back to Dashboard</a>
+</div>
+
+<div class="result-container">
+    <div class="result-card">
+        <h2>@Model.Exam?.Title</h2>
+        <p class="result-subject">@(Model.Exam?.Subject?.Name ?? "N/A")</p>
+
+        <div class="score-circle @(percentage >= 70 ? "score-pass" : "score-fail")">
+            <span class="score-percentage">@percentage.ToString("F1")%</span>
+            <span class="score-fraction">@Model.Score / @Model.TotalPoints</span>
+        </div>
+
+        <div class="result-details">
+            <div class="detail-item">
+                <strong>Correct Answers:</strong>
+                <span>@Model.CorrectAnswers / @Model.TotalQuestions</span>
+            </div>
+            <div class="detail-item">
+                <strong>Submitted:</strong>
+                <span>@Model.SubmittedAt.ToString("MMM dd, yyyy HH:mm")</span>
+            </div>
+            <div class="detail-item">
+                <strong>Status:</strong>
+                <span class="score-badge @(percentage >= 70 ? "score-pass" : "score-fail")">
+                    @(percentage >= 70 ? "PASSED" : "FAILED")
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <h2>Question Review</h2>
+    @foreach (var sa in ViewBag.StudentAnswers)
+    {
+        var q = sa.Question;
+        <div class="question-card review-question @(sa.IsCorrect ? "correct" : "incorrect")">
+            <div class="question-header">
+                <span class="q-number">Q@(ViewBag.StudentAnswers.IndexOf(sa) + 1)</span>
+                <span class="result-icon">@(sa.IsCorrect ? "✓" : "✗")</span>
+            </div>
+            <p class="question-text">@q.Text</p>
+            <div class="options-display">
+                @if (q.Type == CBAssessment.Models.QuestionType.TrueFalse)
+                {
+                    <div class="option @(sa.SelectedAnswer == "A" ? "selected" : "") @(q.CorrectAnswer == "A" ? "correct-opt" : "")">True</div>
+                    <div class="option @(sa.SelectedAnswer == "B" ? "selected" : "") @(q.CorrectAnswer == "B" ? "correct-opt" : "")">False</div>
+                }
+                else
+                {
+                    <div class="option @(sa.SelectedAnswer == "A" ? "selected" : "") @(q.CorrectAnswer == "A" ? "correct-opt" : "")">A. @q.OptionA</div>
+                    <div class="option @(sa.SelectedAnswer == "B" ? "selected" : "") @(q.CorrectAnswer == "B" ? "correct-opt" : "")">B. @q.OptionB</div>
+                    @if (q.OptionC != null)
+                    {
+                        <div class="option @(sa.SelectedAnswer == "C" ? "selected" : "") @(q.CorrectAnswer == "C" ? "correct-opt" : "")">C. @q.OptionC</div>
+                    }
+                    @if (q.OptionD != null)
+                    {
+                        <div class="option @(sa.SelectedAnswer == "D" ? "selected" : "") @(q.CorrectAnswer == "D" ? "correct-opt" : "")">D. @q.OptionD</div>
+                    }
+                }
+            </div>
+            <div class="answer-info">
+                Your answer: <strong>@(sa.SelectedAnswer == "" ? "No answer" : sa.SelectedAnswer)</strong> |
+                Correct: <strong>@q.CorrectAnswer</strong> |
+                Points: <strong>@(sa.IsCorrect ? q.Points : 0) / @q.Points</strong>
+            </div>
+        </div>
+    }
+</div>

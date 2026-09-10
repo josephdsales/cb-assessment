@@ -1,0 +1,87 @@
+@model List<CBAssessment.Models.ExamResult>
+@{
+    ViewData["Title"] = "Exam Report";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var exam = ViewBag.Exam;
+}
+
+<div class="page-header">
+    <h1>@exam.Title - Report</h1>
+    <a asp-action="Dashboard" class="btn btn-secondary">Back</a>
+</div>
+
+<div class="report-summary">
+    <div class="report-card">
+        <div class="report-number">@ViewBag.TotalStudents</div>
+        <div class="report-label">Total Students</div>
+    </div>
+    <div class="report-card">
+        <div class="report-number">@ViewBag.AverageScore.ToString("F1")%</div>
+        <div class="report-label">Average Score</div>
+    </div>
+    <div class="report-card">
+        <div class="report-number">@ViewBag.HighestScore.ToString("F1")%</div>
+        <div class="report-label">Highest Score</div>
+    </div>
+    <div class="report-card">
+        <div class="report-number">@ViewBag.LowestScore.ToString("F1")%</div>
+        <div class="report-label">Lowest Score</div>
+    </div>
+</div>
+
+<div class="info-banner">
+    <strong>Subject:</strong> @(exam.Subject?.Name ?? "N/A") |
+    <strong>Questions:</strong> @exam.Questions.Count |
+    <strong>Total Points:</strong> @exam.Questions.Sum(q => q.Points)
+</div>
+
+@if (!Model.Any())
+{
+    <div class="empty-state">
+        <p>No students have taken this exam yet.</p>
+    </div>
+}
+else
+{
+    <h2>Individual Results</h2>
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Student</th>
+                    <th>Class</th>
+                    <th>Score</th>
+                    <th>Percentage</th>
+                    <th>Correct</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{ int rank = 1; }
+                @foreach (var result in Model)
+                {
+                    var percentage = result.TotalPoints > 0 ? (double)result.Score / result.TotalPoints * 100 : 0;
+                    <tr>
+                        <td>@rank</td>
+                        <td>@result.Student?.FullName</td>
+                        <td>@result.Student?.ClassSection</td>
+                        <td>@result.Score / @result.TotalPoints</td>
+                        <td>
+                            <span class="score-badge @(percentage >= 70 ? "score-pass" : "score-fail")">
+                                @percentage.ToString("F1")%
+                            </span>
+                        </td>
+                        <td>@result.CorrectAnswers / @result.TotalQuestions</td>
+                        <td>@result.SubmittedAt.ToString("MMM dd, yyyy HH:mm")</td>
+                    </tr>
+                    rank++;
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="report-actions">
+        <button onclick="window.print()" class="btn btn-primary">Print Report</button>
+    </div>
+}

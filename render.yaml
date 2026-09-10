@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: cb-assessment
+    runtime: dotnet
+    plan: free
+    buildCommand: dotnet publish -c Release -o /app/publish
+    startCommand: dotnet CBAssessment.dll
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ASPNETCORE_URLS
+        value: http://+:8080
+    healthCheckPath: /

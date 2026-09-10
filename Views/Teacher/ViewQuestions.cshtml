@@ -1,0 +1,61 @@
+@model CBAssessment.Models.Exam
+@{
+    ViewData["Title"] = "View Questions";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="page-header">
+    <h1>@Model.Title - Questions</h1>
+    <a asp-action="Dashboard" class="btn btn-secondary">Back to Dashboard</a>
+</div>
+
+<div class="info-banner">
+    <strong>Subject:</strong> @(Model.Subject?.Name ?? "N/A") |
+    <strong>Status:</strong> @Model.Status |
+    <strong>Total Questions:</strong> @Model.Questions.Count |
+    <strong>Total Points:</strong> @Model.Questions.Sum(q => q.Points)
+</div>
+
+@if (!Model.Questions.Any())
+{
+    <div class="empty-state">
+        <p>No questions added yet.</p>
+        <a asp-action="AddQuestions" asp-route-examId="@Model.Id" class="btn btn-primary">Add Questions</a>
+    </div>
+}
+else
+{
+    <div class="question-list">
+        @foreach (var q in Model.Questions.OrderBy(q => q.Id))
+        {
+            <div class="question-card">
+                <div class="question-header">
+                    <span class="q-type-badge">@q.Type</span>
+                    <span class="q-points">@q.Points pts</span>
+                </div>
+                <p class="question-text">@q.Text</p>
+                <div class="options-display">
+                    <div class="option">A. @q.OptionA</div>
+                    <div class="option">B. @q.OptionB</div>
+                    @if (q.OptionC != null)
+                    {
+                        <div class="option">C. @q.OptionC</div>
+                    }
+                    @if (q.OptionD != null)
+                    {
+                        <div class="option">D. @q.OptionD</div>
+                    }
+                </div>
+                <div class="correct-answer">Correct Answer: <strong>@q.CorrectAnswer</strong></div>
+                <div class="question-actions">
+                    <a asp-action="EditQuestion" asp-route-questionId="@q.Id" class="btn btn-sm btn-info">Edit</a>
+                    <form asp-action="DeleteQuestion" method="post" style="display:inline" onsubmit="return confirm('Delete this question?')">
+                        <input type="hidden" name="questionId" value="@q.Id" />
+                        <input type="hidden" name="examId" value="@Model.Id" />
+                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        }
+    </div>
+}

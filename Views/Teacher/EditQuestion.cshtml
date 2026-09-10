@@ -1,0 +1,91 @@
+@model CBAssessment.Models.Question
+@{
+    ViewData["Title"] = "Edit Question";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="page-header">
+    <h1>Edit Question</h1>
+    <a asp-action="ViewQuestions" asp-route-examId="@Model.ExamId" class="btn btn-secondary">Back</a>
+</div>
+
+<div class="form-container">
+    <form asp-action="EditQuestion" method="post">
+        <input type="hidden" name="id" value="@Model.Id" />
+
+        <div class="form-group">
+            <label>Question Text</label>
+            <textarea name="questionText" rows="2" required>@Model.Text</textarea>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Question Type</label>
+                <select name="type" id="questionType" onchange="toggleOptions()">
+                    <option value="MultipleChoice" @(Model.Type == CBAssessment.Models.QuestionType.MultipleChoice ? "selected" : "")>Multiple Choice</option>
+                    <option value="TrueFalse" @(Model.Type == CBAssessment.Models.QuestionType.TrueFalse ? "selected" : "")>True / False</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Points</label>
+                <input type="number" name="points" value="@Model.Points" min="1" max="10" />
+            </div>
+        </div>
+
+        <div class="options-container" id="extraOptions" style="display: @(Model.Type == CBAssessment.Models.QuestionType.TrueFalse ? "none" : "block")">
+            <div class="form-group">
+                <label>Option A</label>
+                <input type="text" name="optionA" required id="optA" value="@Model.OptionA" />
+            </div>
+            <div class="form-group">
+                <label>Option B</label>
+                <input type="text" name="optionB" required id="optB" value="@Model.OptionB" />
+            </div>
+            <div>
+                <div class="form-group">
+                    <label>Option C</label>
+                    <input type="text" name="optionC" id="optC" value="@Model.OptionC" />
+                </div>
+                <div class="form-group">
+                    <label>Option D</label>
+                    <input type="text" name="optionD" id="optD" value="@Model.OptionD" />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Correct Answer</label>
+            <select name="correctAnswer" id="correctAnswer">
+                @if (Model.Type == CBAssessment.Models.QuestionType.TrueFalse)
+                {
+                    <option value="A" @(Model.CorrectAnswer == "A" ? "selected" : "")>True</option>
+                    <option value="B" @(Model.CorrectAnswer == "B" ? "selected" : "")>False</option>
+                }
+                else
+                {
+                    <option value="A" @(Model.CorrectAnswer == "A" ? "selected" : "")>A</option>
+                    <option value="B" @(Model.CorrectAnswer == "B" ? "selected" : "")>B</option>
+                    <option value="C" @(Model.CorrectAnswer == "C" ? "selected" : "")>C</option>
+                    <option value="D" @(Model.CorrectAnswer == "D" ? "selected" : "")>D</option>
+                }
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">Save Changes</button>
+    </form>
+</div>
+
+<script>
+    function toggleOptions() {
+        var type = document.getElementById('questionType').value;
+        var extra = document.getElementById('extraOptions');
+        var correctSelect = document.getElementById('correctAnswer');
+        if (type === 'TrueFalse') {
+            extra.style.display = 'none';
+            correctSelect.innerHTML = '<option value="A">True</option><option value="B">False</option>';
+        } else {
+            extra.style.display = 'block';
+            correctSelect.innerHTML = '<option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>';
+        }
+    }
+</script>

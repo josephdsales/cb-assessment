@@ -1,0 +1,49 @@
+@model List<CBAssessment.Models.User>
+@{
+    ViewData["Title"] = "Manage Students";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="page-header">
+    <h1>Manage Students</h1>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="empty-state">
+        <p>No students registered yet.</p>
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Username</th>
+                    <th>Class Section</th>
+                    <th>Joined</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var student in Model)
+                {
+                    <tr>
+                        <td>@student.FullName</td>
+                        <td>@student.Username</td>
+                        <td>@(student.ClassSection ?? "N/A")</td>
+                        <td>@student.CreatedAt.ToString("MMM dd, yyyy")</td>
+                        <td>
+                            <form asp-action="DeleteStudent" method="post" style="display:inline" onsubmit="return confirm('Remove this student?')">
+                                <input type="hidden" name="studentId" value="@student.Id" />
+                                <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

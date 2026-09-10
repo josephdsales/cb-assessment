@@ -1,0 +1,108 @@
+@model CBAssessment.Models.Exam
+@{
+    ViewData["Title"] = "Take Exam";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="page-header">
+    <h1>@Model.Title</h1>
+</div>
+
+<div class="info-banner">
+    <strong>Subject:</strong> @(Model.Subject?.Name ?? "N/A") |
+    <strong>Questions:</strong> @Model.Questions.Count |
+    <strong>Time Limit:</strong> @Model.TimeLimitMinutes mins |
+    <strong>Total Points:</strong> @Model.Questions.Sum(q => q.Points)
+</div>
+
+@if (Model.Description != null)
+{
+    <div class="exam-description">@Model.Description</div>
+}
+
+<div class="timer-bar" id="timerBar">
+    <span id="timerDisplay">Time Remaining: @Model.TimeLimitMinutes:00</span>
+</div>
+
+<form asp-action="SubmitExam" method="post" id="examForm">
+    <input type="hidden" name="examId" value="@Model.Id" />
+
+    @foreach (var question in Model.Questions.OrderBy(q => q.Id))
+    {
+        <div class="question-card exam-question">
+            <div class="question-header">
+                <span class="q-number">Question @(Model.Questions.ToList().IndexOf(question) + 1)</span>
+                <span class="q-points">@question.Points pts</span>
+            </div>
+            <p class="question-text">@question.Text</p>
+
+            <div class="answer-options">
+                @if (question.Type == CBAssessment.Models.QuestionType.TrueFalse)
+                {
+                    <label class="answer-option">
+                        <input type="radio" name="answers[@question.Id]" value="A" />
+                        <span class="option-text">True</span>
+                    </label>
+                    <label class="answer-option">
+                        <input type="radio" name="answers[@question.Id]" value="B" />
+                        <span class="option-text">False</span>
+                    </label>
+                }
+                else
+                {
+                    <label class="answer-option">
+                        <input type="radio" name="answers[@question.Id]" value="A" />
+                        <span class="option-text">A. @question.OptionA</span>
+                    </label>
+                    <label class="answer-option">
+                        <input type="radio" name="answers[@question.Id]" value="B" />
+                        <span class="option-text">B. @question.OptionB</span>
+                    </label>
+                    @if (question.OptionC != null)
+                    {
+                        <label class="answer-option">
+                            <input type="radio" name="answers[@question.Id]" value="C" />
+                            <span class="option-text">C. @question.OptionC</span>
+                        </label>
+                    }
+                    @if (question.OptionD != null)
+                    {
+                        <label class="answer-option">
+                            <input type="radio" name="answers[@question.Id]" value="D" />
+                            <span class="option-text">D. @question.OptionD</span>
+                        </label>
+                    }
+                }
+            </div>
+        </div>
+    }
+
+    <div class="submit-section">
+        <button type="submit" class="btn btn-primary btn-lg" onclick="return confirm('Submit your exam?')">
+            Submit Exam
+        </button>
+    </div>
+</form>
+
+<script>
+    (function() {
+        var totalSeconds = @Model.TimeLimitMinutes * 60;
+        var display = document.getElementById('timerDisplay');
+
+        var timer = setInterval(function() {
+            totalSeconds--;
+            if (totalSeconds <= 0) {
+                clearInterval(timer);
+                document.getElementById('examForm').submit();
+                return;
+            }
+            var mins = Math.floor(totalSeconds / 60);
+            var secs = totalSeconds % 60;
+            display.textContent = 'Time Remaining: ' + mins + ':' + (secs < 10 ? '0' : '') + secs;
+
+            if (totalSeconds < 300) {
+                document.getElementById('timerBar').classList.add('timer-warning');
+            }
+        }, 1000);
+    })();
+</script>

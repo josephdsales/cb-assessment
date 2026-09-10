@@ -1,0 +1,91 @@
+@{
+    ViewData["Title"] = "Student Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="page-header">
+    <h1>Welcome, @ViewBag.Student.FullName!</h1>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-number">@ViewBag.AvailableExams.Count</div>
+        <div class="stat-label">Available Exams</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">@ViewBag.CompletedResults.Count</div>
+        <div class="stat-label">Completed Exams</div>
+    </div>
+</div>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-error">@TempData["Message"]</div>
+}
+
+@if (ViewBag.AvailableExams.Count > 0)
+{
+    <h2>Available Exams</h2>
+    <div class="exam-list">
+        @foreach (var exam in ViewBag.AvailableExams)
+        {
+            <div class="exam-card">
+                <div class="exam-card-header">
+                    <h3>@exam.Title</h3>
+                    <span class="badge badge-active">Active</span>
+                </div>
+                <div class="exam-card-body">
+                    <p><strong>Subject:</strong> @(exam.Subject?.Name ?? "N/A")</p>
+                    <p><strong>Questions:</strong> @exam.Questions.Count</p>
+                    <p><strong>Time Limit:</strong> @exam.TimeLimitMinutes mins</p>
+                    @if (exam.Description != null)
+                    {
+                        <p class="exam-desc">@exam.Description</p>
+                    }
+                </div>
+                <div class="exam-card-actions">
+                    <a asp-action="TakeExam" asp-route-examId="@exam.Id" class="btn btn-primary">Start Exam</a>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@if (ViewBag.CompletedResults.Count > 0)
+{
+    <h2>Completed Exams</h2>
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Exam</th>
+                    <th>Subject</th>
+                    <th>Score</th>
+                    <th>Percentage</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var result in ViewBag.CompletedResults)
+                {
+                    var percentage = result.TotalPoints > 0 ? (double)result.Score / result.TotalPoints * 100 : 0;
+                    <tr>
+                        <td>@result.Exam?.Title</td>
+                        <td>@(result.Exam?.Subject?.Name ?? "N/A")</td>
+                        <td>@result.Score / @result.TotalPoints</td>
+                        <td>
+                            <span class="score-badge @(percentage >= 70 ? "score-pass" : "score-fail")">
+                                @percentage.ToString("F1")%
+                            </span>
+                        </td>
+                        <td>@result.SubmittedAt.ToString("MMM dd, yyyy HH:mm")</td>
+                        <td>
+                            <a asp-action="ViewResult" asp-route-resultId="@result.Id" class="btn btn-sm btn-info">View</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

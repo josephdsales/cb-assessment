@@ -1,0 +1,111 @@
+@{
+    ViewData["Title"] = "Add Questions";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="page-header">
+    <h1>Add Questions</h1>
+    <a asp-action="ViewQuestions" asp-route-examId="@ViewBag.ExamId" class="btn btn-secondary">Done Adding</a>
+</div>
+
+<div class="info-banner">
+    <strong>Exam:</strong> @ViewBag.ExamTitle
+</div>
+
+@if (ViewBag.Success != null)
+{
+    <div class="alert alert-success">@ViewBag.Success</div>
+}
+
+<div class="form-container">
+    <form asp-action="AddQuestions" method="post">
+        <input type="hidden" name="examId" value="@ViewBag.ExamId" />
+
+        <div class="form-group">
+            <label>Question Text</label>
+            <textarea name="questionText" rows="2" required placeholder="Enter your question"></textarea>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Question Type</label>
+                <select name="type" id="questionType" onchange="toggleOptions()">
+                    <option value="MultipleChoice">Multiple Choice</option>
+                    <option value="TrueFalse">True / False</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Points</label>
+                <input type="number" name="points" value="1" min="1" max="10" />
+            </div>
+        </div>
+
+        <div class="options-container">
+            <div class="form-group">
+                <label>Option A</label>
+                <input type="text" name="optionA" required id="optA" placeholder="Option A" />
+            </div>
+            <div class="form-group">
+                <label>Option B</label>
+                <input type="text" name="optionB" required id="optB" placeholder="Option B" />
+            </div>
+            <div id="extraOptions">
+                <div class="form-group">
+                    <label>Option C</label>
+                    <input type="text" name="optionC" id="optC" placeholder="Option C (optional)" />
+                </div>
+                <div class="form-group">
+                    <label>Option D</label>
+                    <input type="text" name="optionD" id="optD" placeholder="Option D (optional)" />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Correct Answer</label>
+            <select name="correctAnswer" id="correctAnswer">
+                <option value="A">A</option>
+                <option value="B">B</option>
+                <option value="C">C</option>
+                <option value="D">D</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">Add Question</button>
+    </form>
+</div>
+
+@if (ViewBag.ExistingQuestions != null)
+{
+    <h2>Questions Added (@ViewBag.ExistingQuestions.Count)</h2>
+    <div class="question-list">
+        @{ int qNum = 1; }
+        @foreach (var q in ViewBag.ExistingQuestions)
+        {
+            <div class="question-item">
+                <span class="q-number">Q@(qNum++)</span>
+                <span class="q-text">@q.Text</span>
+                <span class="q-answer">Answer: @q.CorrectAnswer</span>
+            </div>
+        }
+    </div>
+}
+
+<script>
+    function toggleOptions() {
+        var type = document.getElementById('questionType').value;
+        var extra = document.getElementById('extraOptions');
+        var correctSelect = document.getElementById('correctAnswer');
+        if (type === 'TrueFalse') {
+            extra.style.display = 'none';
+            document.getElementById('optA').value = 'True';
+            document.getElementById('optB').value = 'False';
+            correctSelect.innerHTML = '<option value="A">True</option><option value="B">False</option>';
+        } else {
+            extra.style.display = 'block';
+            document.getElementById('optA').value = '';
+            document.getElementById('optB').value = '';
+            correctSelect.innerHTML = '<option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>';
+        }
+    }
+</script>
