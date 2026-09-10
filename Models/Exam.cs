@@ -39,6 +39,9 @@ public class Exam
 
     public DateTime? EndTime { get; set; }
 
+    [StringLength(500)]
+    public string? TargetSections { get; set; }
+
     public DateTime CreatedAt { get; set; } = DateTime.Now;
 
     public ICollection<Question> Questions { get; set; } = new List<Question>();

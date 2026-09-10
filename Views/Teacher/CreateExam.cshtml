@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Create Exam";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var sections = (List<string>)ViewBag.Sections;
 }
 
 <div class="page-header">
@@ -19,20 +20,55 @@
             <label>Description</label>
             <textarea name="Description" rows="3" placeholder="Brief description of the exam"></textarea>
         </div>
-        <div class="form-group">
-            <label>Subject</label>
-            <select name="SubjectId" required>
-                <option value="">-- Select Subject --</option>
-                @foreach (var subject in ViewBag.Subjects)
-                {
-                    <option value="@subject.Id">@subject.Name (@subject.Code)</option>
-                }
-            </select>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Subject</label>
+                <select name="SubjectId" required>
+                    <option value="">-- Select Subject --</option>
+                    @foreach (var subject in ViewBag.Subjects)
+                    {
+                        <option value="@subject.Id">@subject.Name (@subject.Code)</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Time Limit (minutes)</label>
+                <input type="number" name="TimeLimitMinutes" value="60" min="5" max="180" />
+            </div>
         </div>
         <div class="form-group">
-            <label>Time Limit (minutes)</label>
-            <input type="number" name="TimeLimitMinutes" value="60" min="5" max="180" />
+            <label>Assign to Sections</label>
+            @if (sections.Any())
+            {
+                <div class="checkbox-group">
+                    @foreach (var section in sections)
+                    {
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="targetSections" value="@section" />
+                            @section
+                        </label>
+                    }
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="selectAll" onchange="toggleAll()" />
+                        <strong>All Sections</strong>
+                    </label>
+                </div>
+            }
+            else
+            {
+                <p class="text-muted">No student sections found. Students will be assigned sections when they register.</p>
+            }
+            <small>Leave all unchecked to make the exam available to all sections.</small>
         </div>
         <button type="submit" class="btn btn-primary btn-block">Create Exam</button>
     </form>
 </div>
+
+<script>
+    function toggleAll() {
+        var checked = document.getElementById('selectAll').checked;
+        document.querySelectorAll('input[name="targetSections"]').forEach(function(cb) {
+            cb.checked = checked;
+        });
+    }
+</script>

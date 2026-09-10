@@ -23,11 +23,13 @@ public class StudentController : Controller
     {
         var studentId = GetUserId();
         var student = await _context.Users.FindAsync(studentId);
+        var studentSection = student?.ClassSection ?? "";
 
         var availableExams = await _context.Exams
             .Include(e => e.Subject)
             .Include(e => e.Questions)
-            .Where(e => e.Status == ExamStatus.Active)
+            .Where(e => e.Status == ExamStatus.Active &&
+                (string.IsNullOrEmpty(e.TargetSections) || e.TargetSections.Contains(studentSection)))
             .OrderByDescending(e => e.CreatedAt)
             .ToListAsync();
 

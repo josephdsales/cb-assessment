@@ -38,6 +38,10 @@
                     <p><strong>Subject:</strong> @(exam.Subject?.Name ?? "N/A")</p>
                     <p><strong>Questions:</strong> @exam.Questions.Count</p>
                     <p><strong>Time Limit:</strong> @exam.TimeLimitMinutes mins</p>
+                    @if (!string.IsNullOrEmpty(exam.TargetSections))
+                    {
+                        <p><strong>For Section:</strong> <span class="badge badge-active">@exam.TargetSections</span></p>
+                    }
                     @if (exam.Description != null)
                     {
                         <p class="exam-desc">@exam.Description</p>

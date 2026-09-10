@@ -43,15 +43,24 @@ public class TeacherController : Controller
     public async Task<IActionResult> CreateExam()
     {
         ViewBag.Subjects = await _context.Subjects.ToListAsync();
+        var sections = await _context.Users
+            .Where(u => u.Role == UserRole.Student && u.ClassSection != null)
+            .Select(u => u.ClassSection!)
+            .Distinct()
+            .OrderBy(s => s)
+            .ToListAsync();
+        ViewBag.Sections = sections;
         return View(new Exam());
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateExam(Exam exam)
+    public async Task<IActionResult> CreateExam(Exam exam, string[]? targetSections)
     {
         exam.TeacherId = GetUserId();
         exam.CreatedAt = DateTime.Now;
         exam.Status = ExamStatus.Draft;
+        exam.TargetSections = targetSections != null && targetSections.Length > 0
+            ? string.Join(",", targetSections) : null;
         _context.Exams.Add(exam);
         await _context.SaveChangesAsync();
         return RedirectToAction("AddQuestions", new { examId = exam.Id });
