@@ -29,16 +29,16 @@ else
                 </tr>
             </thead>
             <tbody>
-                @foreach (var section in Model)
+                @foreach (var sec in Model)
                 {
                     <tr>
-                        <td><strong>@section.Name</strong></td>
-                        <td>@(section.Description ?? "-")</td>
-                        <td>@section.CreatedAt.ToString("MMM dd, yyyy")</td>
+                        <td><strong>@sec.Name</strong></td>
+                        <td>@(sec.Description ?? "-")</td>
+                        <td>@sec.CreatedAt.ToString("MMM dd, yyyy")</td>
                         <td>
-                            <a asp-action="EditSection" asp-route-id="@section.Id" class="btn btn-sm btn-info">Edit</a>
-                            <form asp-action="DeleteSection" method="post" style="display:inline" onsubmit="return confirm('Delete section @section.Name?')">
-                                <input type="hidden" name="id" value="@section.Id" />
+                            <a asp-action="EditSection" asp-route-id="@sec.Id" class="btn btn-sm btn-info">Edit</a>
+                            <form asp-action="DeleteSection" method="post" style="display:inline" onsubmit="return confirm('Delete section?')">
+                                <input type="hidden" name="id" value="@sec.Id" />
                                 <button type="submit" class="btn btn-sm btn-danger">Delete</button>
                             </form>
                         </td>
