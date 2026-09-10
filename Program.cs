@@ -7,8 +7,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
-var dbPath = Environment.GetEnvironmentVariable("DB_PATH")
-    ?? Path.Combine(AppContext.BaseDirectory, "cbassessment.db");
+var dbDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "data");
+Directory.CreateDirectory(dbDir);
+var dbPath = Path.Combine(dbDir, "cbassessment.db");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite($"Data Source={dbPath}"));
@@ -26,9 +27,17 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.EnsureCreated();
-    SeedData.Initialize(scope.ServiceProvider);
+    try
+    {
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        db.Database.EnsureCreated();
+        SeedData.Initialize(scope.ServiceProvider);
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Database initialization failed");
+    }
 }
 
 if (!app.Environment.IsDevelopment())
@@ -47,5 +56,11 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.MapGet("/health", () => Results.Ok("healthy"));
+
+app.MapGet("/error", (HttpContext ctx) =>
+{
+    var error = ctx.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>()?.Error;
+    return Results.Problem(error?.Message ?? "Unknown error", statusCode: 500);
+});
 
 app.Run();
