@@ -41,11 +41,11 @@
             @if (sections.Any())
             {
                 <div class="checkbox-group">
-                    @foreach (var section in sections)
+                    @foreach (var sec in sections)
                     {
                         <label class="checkbox-label">
-                            <input type="checkbox" name="targetSections" value="@section" />
-                            @section
+                            <input type="checkbox" name="targetSections" value="@sec" />
+                            @sec
                         </label>
                     }
                     <label class="checkbox-label">
