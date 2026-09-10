@@ -68,14 +68,17 @@ public class HomeController : Controller
     }
 
     [HttpGet]
-    public IActionResult Register()
+    public async Task<IActionResult> Register()
     {
+        ViewBag.Sections = await _context.Sections.OrderBy(s => s.Name).ToListAsync();
         return View();
     }
 
     [HttpPost]
     public async Task<IActionResult> Register(string fullName, string username, string password, string confirmPassword, UserRole role, string? classSection)
     {
+        ViewBag.Sections = await _context.Sections.OrderBy(s => s.Name).ToListAsync();
+
         if (string.IsNullOrEmpty(fullName) || string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
         {
             ViewBag.Error = "All fields are required.";

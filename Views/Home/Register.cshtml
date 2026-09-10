@@ -1,6 +1,7 @@
 @{
     ViewData["Title"] = "Register";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var sections = (List<CBAssessment.Models.Section>)ViewBag.Sections;
 }
 
 <div class="auth-container">
@@ -38,8 +39,21 @@
                 </select>
             </div>
             <div class="form-group" id="classSectionGroup">
-                <label>Class Section</label>
-                <input type="text" name="classSection" placeholder="e.g., 10-A" />
+                <label>Section</label>
+                <select name="classSection" id="classSectionSelect">
+                    <option value="">-- Select Section --</option>
+                    @if (sections.Any())
+                    {
+                        @foreach (var sec in sections)
+                        {
+                            <option value="@sec.Name">@sec.Name</option>
+                        }
+                    }
+                </select>
+                @if (!sections.Any())
+                {
+                    <small class="text-muted">No sections available. Contact your teacher.</small>
+                }
             </div>
             <button type="submit" class="btn btn-primary btn-block">Register</button>
         </form>
