@@ -479,4 +479,76 @@ public class TeacherController : Controller
         }
         return RedirectToAction("ManageSections");
     }
+
+    // Teacher Management
+    public async Task<IActionResult> ManageTeachers()
+    {
+        var teachers = await _context.Users
+            .Where(u => u.Role == UserRole.Teacher)
+            .OrderBy(u => u.FullName)
+            .ToListAsync();
+        ViewData["CurrentTeacherId"] = GetUserId();
+        return View(teachers);
+    }
+
+    [HttpGet]
+    public IActionResult CreateTeacher()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CreateTeacher(string fullName, string username, string password, string confirmPassword)
+    {
+        if (string.IsNullOrEmpty(fullName) || string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+        {
+            ViewBag.Error = "All fields are required.";
+            return View();
+        }
+
+        if (password != confirmPassword)
+        {
+            ViewBag.Error = "Passwords do not match.";
+            return View();
+        }
+
+        if (password.Length < 6)
+        {
+            ViewBag.Error = "Password must be at least 6 characters.";
+            return View();
+        }
+
+        if (await _context.Users.AnyAsync(u => u.Username == username))
+        {
+            ViewBag.Error = "Username already exists.";
+            return View();
+        }
+
+        var teacher = new User
+        {
+            FullName = fullName,
+            Username = username,
+            PasswordHash = BCryptHelper.HashPassword(password),
+            Role = UserRole.Teacher,
+            CreatedAt = DateTime.Now
+        };
+
+        _context.Users.Add(teacher);
+        await _context.SaveChangesAsync();
+
+        ViewBag.Success = "Teacher account created successfully!";
+        return View();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> DeleteTeacher(int teacherId)
+    {
+        var teacher = await _context.Users.FindAsync(teacherId);
+        if (teacher != null && teacher.Id != GetUserId())
+        {
+            _context.Users.Remove(teacher);
+            await _context.SaveChangesAsync();
+        }
+        return RedirectToAction("ManageTeachers");
+    }
 }
