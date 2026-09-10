@@ -1,0 +1,29 @@
+@model CBAssessment.Models.Section
+@{
+    ViewData["Title"] = "Add Section";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="page-header">
+    <h1>Add Section</h1>
+    <a asp-action="ManageSections" class="btn btn-secondary">Back</a>
+</div>
+
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-error">@ViewBag.Error</div>
+}
+
+<div class="form-container">
+    <form asp-action="CreateSection" method="post">
+        <div class="form-group">
+            <label>Section Name</label>
+            <input type="text" name="name" required placeholder="e.g., 10-A" value="@Model.Name" />
+        </div>
+        <div class="form-group">
+            <label>Description (optional)</label>
+            <input type="text" name="description" placeholder="e.g., Grade 10 - Section A" value="@Model.Description" />
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Create Section</button>
+    </form>
+</div>

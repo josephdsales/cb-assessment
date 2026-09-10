@@ -1,0 +1,30 @@
+@model CBAssessment.Models.Section
+@{
+    ViewData["Title"] = "Edit Section";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="page-header">
+    <h1>Edit Section</h1>
+    <a asp-action="ManageSections" class="btn btn-secondary">Back</a>
+</div>
+
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-error">@ViewBag.Error</div>
+}
+
+<div class="form-container">
+    <form asp-action="EditSection" method="post">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <div class="form-group">
+            <label>Section Name</label>
+            <input type="text" name="name" required value="@Model.Name" />
+        </div>
+        <div class="form-group">
+            <label>Description (optional)</label>
+            <input type="text" name="description" value="@Model.Description" />
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Save Changes</button>
+    </form>
+</div>

@@ -16,11 +16,14 @@
             @if (User.Identity?.IsAuthenticated ?? false)
             {
                 <span class="nav-user">@User.Identity.Name</span>
-                @if (User.IsInRole("Teacher"))
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-controller="Admin" asp-action="Dashboard">Dashboard</a>
+                }
+                else if (User.IsInRole("Teacher"))
                 {
                     <a asp-controller="Teacher" asp-action="Dashboard">Dashboard</a>
                     <a asp-controller="Teacher" asp-action="ManageSections">Sections</a>
-                    <a asp-controller="Teacher" asp-action="ManageTeachers">Teachers</a>
                     <a asp-controller="Teacher" asp-action="Reports">Reports</a>
                     <a asp-controller="Teacher" asp-action="ManageStudents">Students</a>
                 }

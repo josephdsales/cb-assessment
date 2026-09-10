@@ -23,7 +23,9 @@ public class HomeController : Controller
             return RedirectToAction("Login");
 
         var role = User.FindFirst(ClaimTypes.Role)?.Value;
-        if (role == "Teacher")
+        if (role == "Admin")
+            return RedirectToAction("Dashboard", "Admin");
+        else if (role == "Teacher")
             return RedirectToAction("Dashboard", "Teacher");
         else
             return RedirectToAction("Dashboard", "Student");

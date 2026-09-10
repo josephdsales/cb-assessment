@@ -1,0 +1,48 @@
+@model List<CBAssessment.Models.User>
+@{
+    ViewData["Title"] = "Manage Teachers";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="page-header">
+    <h1>Manage Teachers</h1>
+    <a asp-action="CreateTeacher" class="btn btn-primary">+ Add Teacher</a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="empty-state">
+        <p>No teachers found.</p>
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Username</th>
+                    <th>Joined</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var teacher in Model)
+                {
+                    <tr>
+                        <td><strong>@teacher.FullName</strong></td>
+                        <td>@teacher.Username</td>
+                        <td>@teacher.CreatedAt.ToString("MMM dd, yyyy")</td>
+                        <td>
+                            <form asp-action="DeleteTeacher" method="post" style="display:inline" onsubmit="return confirm('Delete this teacher?')">
+                                <input type="hidden" name="id" value="@teacher.Id" />
+                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

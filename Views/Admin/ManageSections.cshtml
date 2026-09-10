@@ -1,0 +1,50 @@
+@model List<CBAssessment.Models.Section>
+@{
+    ViewData["Title"] = "Manage Sections";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="page-header">
+    <h1>Manage Sections</h1>
+    <a asp-action="CreateSection" class="btn btn-primary">+ Add Section</a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="empty-state">
+        <p>No sections created yet.</p>
+        <a asp-action="CreateSection" class="btn btn-primary">Create First Section</a>
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var sec in Model)
+                {
+                    <tr>
+                        <td><strong>@sec.Name</strong></td>
+                        <td>@(sec.Description ?? "-")</td>
+                        <td>@sec.CreatedAt.ToString("MMM dd, yyyy")</td>
+                        <td>
+                            <a asp-action="EditSection" asp-route-id="@sec.Id" class="btn btn-sm btn-info">Edit</a>
+                            <form asp-action="DeleteSection" method="post" style="display:inline" onsubmit="return confirm('Delete section?')">
+                                <input type="hidden" name="id" value="@sec.Id" />
+                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

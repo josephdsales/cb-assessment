@@ -15,6 +15,16 @@ public static class SeedData
 
         var teacherHash = BCryptHelper.HashPassword("teacher123");
         var studentHash = BCryptHelper.HashPassword("student123");
+        var adminHash = BCryptHelper.HashPassword("admin123");
+
+        var admin = new User
+        {
+            FullName = "System Administrator",
+            Username = "admin",
+            PasswordHash = adminHash,
+            Role = UserRole.Admin,
+            CreatedAt = DateTime.Now
+        };
 
         var teacher = new User
         {
@@ -34,6 +44,7 @@ public static class SeedData
             new User { FullName = "Charlie Wilson", Username = "charlie", PasswordHash = studentHash, Role = UserRole.Student, ClassSection = "11-A" }
         };
 
+        context.Users.Add(admin);
         context.Users.Add(teacher);
         context.Users.AddRange(students);
         context.SaveChanges();

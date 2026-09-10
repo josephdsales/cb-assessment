@@ -1,0 +1,42 @@
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="page-header">
+    <h1>Admin Dashboard</h1>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-number">@ViewBag.TotalTeachers</div>
+        <div class="stat-label">Teachers</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">@ViewBag.TotalStudents</div>
+        <div class="stat-label">Students</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">@ViewBag.TotalExams</div>
+        <div class="stat-label">Exams</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">@ViewBag.TotalSections</div>
+        <div class="stat-label">Sections</div>
+    </div>
+</div>
+
+<div class="admin-links">
+    <a asp-action="ManageTeachers" class="admin-link-card">
+        <h3>Manage Teachers</h3>
+        <p>Add, edit, or remove teacher accounts</p>
+    </a>
+    <a asp-action="ManageStudents" class="admin-link-card">
+        <h3>Manage Students</h3>
+        <p>View and manage student accounts</p>
+    </a>
+    <a asp-action="ManageSections" class="admin-link-card">
+        <h3>Manage Sections</h3>
+        <p>Create and organize class sections</p>
+    </a>
+</div>

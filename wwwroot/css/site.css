@@ -950,6 +950,42 @@ body {
     color: var(--text-light);
 }
 
+/* Admin Links */
+.admin-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.admin-link-card {
+    display: block;
+    background: var(--card);
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    text-decoration: none;
+    color: var(--text);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: all 0.2s;
+    border-left: 4px solid var(--primary);
+}
+
+.admin-link-card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+.admin-link-card h3 {
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+}
+
+.admin-link-card p {
+    color: var(--text-light);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
     .nav-toggle {

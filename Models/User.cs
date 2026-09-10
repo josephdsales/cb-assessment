@@ -4,8 +4,9 @@ namespace CBAssessment.Models;
 
 public enum UserRole
 {
+    Student,
     Teacher,
-    Student
+    Admin
 }
 
 public class User
