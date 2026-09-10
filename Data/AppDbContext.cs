@@ -11,6 +11,7 @@ public class AppDbContext : DbContext
     public DbSet<Question> Questions => Set<Question>();
     public DbSet<Exam> Exams => Set<Exam>();
     public DbSet<Subject> Subjects => Set<Subject>();
+    public DbSet<Section> Sections => Set<Section>();
     public DbSet<ExamResult> ExamResults => Set<ExamResult>();
     public DbSet<StudentAnswer> StudentAnswers => Set<StudentAnswer>();
 

@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = "Create Exam";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    var sections = (List<string>)ViewBag.Sections;
+    var sections = (List<CBAssessment.Models.Section>)ViewBag.Sections;
 }
 
 <div class="page-header">
@@ -40,25 +40,30 @@
             <label>Assign to Sections</label>
             @if (sections.Any())
             {
-                <div class="checkbox-group">
+                <div class="section-checkbox-grid">
+                    <label class="checkbox-label checkbox-all">
+                        <input type="checkbox" id="selectAll" onchange="toggleAll()" />
+                        <strong>Select All</strong>
+                    </label>
+                </div>
+                <div class="section-checkbox-grid">
                     @foreach (var sec in sections)
                     {
                         <label class="checkbox-label">
-                            <input type="checkbox" name="targetSections" value="@sec" />
-                            @sec
+                            <input type="checkbox" name="targetSections" value="@sec.Name" class="section-cb" />
+                            @sec.Name
                         </label>
                     }
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="selectAll" onchange="toggleAll()" />
-                        <strong>All Sections</strong>
-                    </label>
                 </div>
             }
             else
             {
-                <p class="text-muted">No student sections found. Students will be assigned sections when they register.</p>
+                <div class="empty-state-inline">
+                    <p>No sections yet.</p>
+                    <a asp-action="ManageSections" class="btn btn-sm">Create Sections First</a>
+                </div>
             }
-            <small>Leave all unchecked to make the exam available to all sections.</small>
+            <small class="text-muted">Leave all unchecked to make the exam available to all sections.</small>
         </div>
         <button type="submit" class="btn btn-primary btn-block">Create Exam</button>
     </form>
@@ -67,7 +72,7 @@
 <script>
     function toggleAll() {
         var checked = document.getElementById('selectAll').checked;
-        document.querySelectorAll('input[name="targetSections"]').forEach(function(cb) {
+        document.querySelectorAll('.section-cb').forEach(function(cb) {
             cb.checked = checked;
         });
     }

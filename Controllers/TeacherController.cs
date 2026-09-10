@@ -43,11 +43,10 @@ public class TeacherController : Controller
     public async Task<IActionResult> CreateExam()
     {
         ViewBag.Subjects = await _context.Subjects.ToListAsync();
-        var sections = await _context.Users
-            .Where(u => u.Role == UserRole.Student && u.ClassSection != null)
-            .Select(u => u.ClassSection!)
-            .Distinct()
-            .OrderBy(s => s)
+        var teacherId = GetUserId();
+        var sections = await _context.Sections
+            .Where(s => s.TeacherId == teacherId)
+            .OrderBy(s => s.Name)
             .ToListAsync();
         ViewBag.Sections = sections;
         return View(new Exam());
@@ -396,5 +395,88 @@ public class TeacherController : Controller
         await _context.SaveChangesAsync();
 
         return RedirectToAction("GradeSubmissions", new { examId = exam.Id });
+    }
+
+    // Section Management
+    public async Task<IActionResult> ManageSections()
+    {
+        var teacherId = GetUserId();
+        var sections = await _context.Sections
+            .Where(s => s.TeacherId == teacherId || s.TeacherId == null)
+            .OrderBy(s => s.Name)
+            .ToListAsync();
+        return View(sections);
+    }
+
+    [HttpGet]
+    public IActionResult CreateSection()
+    {
+        return View(new Section());
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CreateSection(string name, string? description)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            ViewBag.Error = "Section name is required.";
+            return View(new Section());
+        }
+
+        var exists = await _context.Sections.AnyAsync(s => s.Name == name && s.TeacherId == GetUserId());
+        if (exists)
+        {
+            ViewBag.Error = "A section with this name already exists.";
+            return View(new Section { Name = name, Description = description });
+        }
+
+        var section = new Section
+        {
+            Name = name.Trim(),
+            Description = description?.Trim(),
+            TeacherId = GetUserId(),
+            CreatedAt = DateTime.Now
+        };
+        _context.Sections.Add(section);
+        await _context.SaveChangesAsync();
+        return RedirectToAction("ManageSections");
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> EditSection(int id)
+    {
+        var section = await _context.Sections.FindAsync(id);
+        if (section == null) return NotFound();
+        return View(section);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> EditSection(int id, string name, string? description)
+    {
+        var section = await _context.Sections.FindAsync(id);
+        if (section == null) return NotFound();
+
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            ViewBag.Error = "Section name is required.";
+            return View(section);
+        }
+
+        section.Name = name.Trim();
+        section.Description = description?.Trim();
+        await _context.SaveChangesAsync();
+        return RedirectToAction("ManageSections");
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> DeleteSection(int id)
+    {
+        var section = await _context.Sections.FindAsync(id);
+        if (section != null)
+        {
+            _context.Sections.Remove(section);
+            await _context.SaveChangesAsync();
+        }
+        return RedirectToAction("ManageSections");
     }
 }

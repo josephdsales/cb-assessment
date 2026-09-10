@@ -19,6 +19,7 @@
                 @if (User.IsInRole("Teacher"))
                 {
                     <a asp-controller="Teacher" asp-action="Dashboard">Dashboard</a>
+                    <a asp-controller="Teacher" asp-action="ManageSections">Sections</a>
                     <a asp-controller="Teacher" asp-action="Reports">Reports</a>
                     <a asp-controller="Teacher" asp-action="ManageStudents">Students</a>
                 }
