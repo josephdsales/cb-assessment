@@ -17,9 +17,15 @@ public class StudentAnswer
     [ForeignKey("QuestionId")]
     public Question? Question { get; set; }
 
-    [Required]
-    [StringLength(5)]
+    [StringLength(500)]
     public string SelectedAnswer { get; set; } = string.Empty;
 
+    [StringLength(2000)]
+    public string? LongAnswerText { get; set; }
+
     public bool IsCorrect { get; set; }
+
+    public bool IsPendingReview { get; set; }
+
+    public int? AwardedPoints { get; set; }
 }

@@ -4,12 +4,20 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     var percentage = (double)ViewBag.Percentage;
     var studentAnswers = (List<CBAssessment.Models.StudentAnswer>)ViewBag.StudentAnswers;
+    var hasPending = (bool)ViewBag.HasPendingReview;
 }
 
 <div class="page-header">
     <h1>Exam Result</h1>
     <a asp-action="Dashboard" class="btn btn-secondary">Back to Dashboard</a>
 </div>
+
+@if (hasPending)
+{
+    <div class="alert alert-success">
+        Some questions require manual grading by your teacher. Your score may change after review.
+    </div>
+}
 
 <div class="result-container">
     <div class="result-card">
@@ -32,9 +40,16 @@
             </div>
             <div class="detail-item">
                 <strong>Status:</strong>
-                <span class="score-badge @(percentage >= 70 ? "score-pass" : "score-fail")">
-                    @(percentage >= 70 ? "PASSED" : "FAILED")
-                </span>
+                @if (hasPending)
+                {
+                    <span class="score-badge" style="background:#fef3c7;color:#d97706;">PENDING REVIEW</span>
+                }
+                else
+                {
+                    <span class="score-badge @(percentage >= 70 ? "score-pass" : "score-fail")">
+                        @(percentage >= 70 ? "PASSED" : "FAILED")
+                    </span>
+                }
             </div>
         </div>
     </div>
@@ -44,36 +59,94 @@
     @foreach (var sa in studentAnswers)
     {
         var q = sa.Question;
-        <div class="question-card review-question @(sa.IsCorrect ? "correct" : "incorrect")">
+        <div class="question-card review-question @(sa.IsPendingReview ? "pending" : (sa.IsCorrect ? "correct" : "incorrect"))">
             <div class="question-header">
                 <span class="q-number">Q@(qIdx++)</span>
-                <span class="result-icon">@(sa.IsCorrect ? "\u2713" : "\u2717")</span>
-            </div>
-            <p class="question-text">@q?.Text</p>
-            <div class="options-display">
-                @if (q?.Type == CBAssessment.Models.QuestionType.TrueFalse)
+                @if (sa.IsPendingReview)
                 {
-                    <div class="option @(sa.SelectedAnswer == "A" ? "selected" : "") @(q.CorrectAnswer == "A" ? "correct-opt" : "")">True</div>
-                    <div class="option @(sa.SelectedAnswer == "B" ? "selected" : "") @(q.CorrectAnswer == "B" ? "correct-opt" : "")">False</div>
+                    <span class="result-icon pending-icon">⏳</span>
+                }
+                else if (sa.IsCorrect)
+                {
+                    <span class="result-icon" style="color:var(--success)">&#10003;</span>
                 }
                 else
                 {
-                    <div class="option @(sa.SelectedAnswer == "A" ? "selected" : "") @(q?.CorrectAnswer == "A" ? "correct-opt" : "")">A. @q?.OptionA</div>
-                    <div class="option @(sa.SelectedAnswer == "B" ? "selected" : "") @(q?.CorrectAnswer == "B" ? "correct-opt" : "")">B. @q?.OptionB</div>
-                    @if (q?.OptionC != null)
+                    <span class="result-icon" style="color:var(--danger)">&#10007;</span>
+                }
+            </div>
+            <p class="question-text">@q?.Text</p>
+
+            @if (q?.Type == CBAssessment.Models.QuestionType.MultipleChoice)
+            {
+                <div class="options-display">
+                    <div class="option @(sa.SelectedAnswer == "A" ? "selected" : "") @(q.CorrectAnswer == "A" ? "correct-opt" : "")">A. @q.OptionA</div>
+                    <div class="option @(sa.SelectedAnswer == "B" ? "selected" : "") @(q.CorrectAnswer == "B" ? "correct-opt" : "")">B. @q.OptionB</div>
+                    @if (q.OptionC != null)
                     {
                         <div class="option @(sa.SelectedAnswer == "C" ? "selected" : "") @(q.CorrectAnswer == "C" ? "correct-opt" : "")">C. @q.OptionC</div>
                     }
-                    @if (q?.OptionD != null)
+                    @if (q.OptionD != null)
                     {
                         <div class="option @(sa.SelectedAnswer == "D" ? "selected" : "") @(q.CorrectAnswer == "D" ? "correct-opt" : "")">D. @q.OptionD</div>
                     }
-                }
-            </div>
+                </div>
+            }
+            else if (q?.Type == CBAssessment.Models.QuestionType.TrueFalse)
+            {
+                <div class="options-display">
+                    <div class="option @(sa.SelectedAnswer == "A" ? "selected" : "") @(q.CorrectAnswer == "A" ? "correct-opt" : "")">True</div>
+                    <div class="option @(sa.SelectedAnswer == "B" ? "selected" : "") @(q.CorrectAnswer == "B" ? "correct-opt" : "")">False</div>
+                </div>
+            }
+            else if (q?.Type == CBAssessment.Models.QuestionType.FillInBlank)
+            {
+                <div class="answer-info">
+                    Your answer: <strong>@(string.IsNullOrEmpty(sa.SelectedAnswer) ? "No answer" : sa.SelectedAnswer)</strong>
+                </div>
+            }
+            else if (q?.Type == CBAssessment.Models.QuestionType.LongAnswer)
+            {
+                <div class="long-answer-review">
+                    <strong>Your Answer:</strong>
+                    <div class="long-answer-text">@(sa.LongAnswerText ?? "No answer provided")</div>
+                    @if (q.SampleAnswer != null)
+                    {
+                        <div class="sample-answer">
+                            <strong>Sample Answer:</strong>
+                            <div>@q.SampleAnswer</div>
+                        </div>
+                    }
+                    @if (sa.IsPendingReview)
+                    {
+                        <span class="score-badge" style="background:#fef3c7;color:#d97706;">Awaiting teacher review</span>
+                    }
+                    else
+                    {
+                        <span>Points awarded: <strong>@(sa.AwardedPoints ?? 0) / @q.Points</strong></span>
+                    }
+                </div>
+            }
+            else if (q?.Type == CBAssessment.Models.QuestionType.MatchingType)
+            {
+                <div class="answer-info">
+                    Your matching: <strong>@(string.IsNullOrEmpty(sa.SelectedAnswer) ? "No answer" : sa.SelectedAnswer)</strong> |
+                    Correct: <strong>@q.CorrectAnswer</strong>
+                </div>
+            }
+            else if (q?.Type == CBAssessment.Models.QuestionType.Ordering)
+            {
+                <div class="answer-info">
+                    Your order: <strong>@(string.IsNullOrEmpty(sa.SelectedAnswer) ? "No answer" : sa.SelectedAnswer)</strong> |
+                    Correct: <strong>@q.CorrectAnswer</strong>
+                </div>
+            }
+
             <div class="answer-info">
-                Your answer: <strong>@(sa.SelectedAnswer == "" ? "No answer" : sa.SelectedAnswer)</strong> |
-                Correct: <strong>@q?.CorrectAnswer</strong> |
-                Points: <strong>@(sa.IsCorrect ? q?.Points : 0) / @q?.Points</strong>
+                @if (!sa.IsPendingReview)
+                {
+                    <span>Points: <strong>@(sa.IsCorrect ? q?.Points : 0) / @q?.Points</strong></span>
+                }
             </div>
         </div>
     }

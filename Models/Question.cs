@@ -6,7 +6,11 @@ namespace CBAssessment.Models;
 public enum QuestionType
 {
     MultipleChoice,
-    TrueFalse
+    TrueFalse,
+    FillInBlank,
+    LongAnswer,
+    MatchingType,
+    Ordering
 }
 
 public class Question
@@ -19,13 +23,11 @@ public class Question
 
     public QuestionType Type { get; set; }
 
-    [Required]
     [StringLength(200)]
-    public string OptionA { get; set; } = string.Empty;
+    public string? OptionA { get; set; }
 
-    [Required]
     [StringLength(200)]
-    public string OptionB { get; set; } = string.Empty;
+    public string? OptionB { get; set; }
 
     [StringLength(200)]
     public string? OptionC { get; set; }
@@ -34,10 +36,21 @@ public class Question
     public string? OptionD { get; set; }
 
     [Required]
-    [StringLength(5)]
+    [StringLength(500)]
     public string CorrectAnswer { get; set; } = string.Empty;
 
+    [StringLength(2000)]
+    public string? MatchingPairs { get; set; }
+
+    [StringLength(2000)]
+    public string? OrderingItems { get; set; }
+
+    [StringLength(2000)]
+    public string? SampleAnswer { get; set; }
+
     public int Points { get; set; } = 1;
+
+    public bool RequiresManualGrading { get; set; }
 
     public int? ExamId { get; set; }
 

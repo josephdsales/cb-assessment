@@ -29,25 +29,30 @@
         <div class="form-row">
             <div class="form-group">
                 <label>Question Type</label>
-                <select name="type" id="questionType" onchange="toggleOptions()">
+                <select name="type" id="questionType" onchange="toggleQuestionFields()">
                     <option value="MultipleChoice">Multiple Choice</option>
                     <option value="TrueFalse">True / False</option>
+                    <option value="FillInBlank">Fill in the Blank</option>
+                    <option value="LongAnswer">Long Answer (Essay)</option>
+                    <option value="MatchingType">Matching Type</option>
+                    <option value="Ordering">Drag & Drop (Ordering)</option>
                 </select>
             </div>
             <div class="form-group">
                 <label>Points</label>
-                <input type="number" name="points" value="1" min="1" max="10" />
+                <input type="number" name="points" value="1" min="1" max="100" />
             </div>
         </div>
 
-        <div class="options-container">
+        <!-- MC / TF Options -->
+        <div id="mcFields">
             <div class="form-group">
-                <label>Option A</label>
-                <input type="text" name="optionA" required id="optA" placeholder="Option A" />
+                <label>Option A <span id="mcRequired">*</span></label>
+                <input type="text" name="optionA" id="optA" placeholder="Option A" />
             </div>
             <div class="form-group">
-                <label>Option B</label>
-                <input type="text" name="optionB" required id="optB" placeholder="Option B" />
+                <label>Option B <span id="mcRequired2">*</span></label>
+                <input type="text" name="optionB" id="optB" placeholder="Option B" />
             </div>
             <div id="extraOptions">
                 <div class="form-group">
@@ -59,16 +64,65 @@
                     <input type="text" name="optionD" id="optD" placeholder="Option D (optional)" />
                 </div>
             </div>
+            <div class="form-group">
+                <label>Correct Answer</label>
+                <select name="correctAnswer" id="correctAnswer">
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                </select>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label>Correct Answer</label>
-            <select name="correctAnswer" id="correctAnswer">
-                <option value="A">A</option>
-                <option value="B">B</option>
-                <option value="C">C</option>
-                <option value="D">D</option>
-            </select>
+        <!-- Fill in the Blank -->
+        <div id="fibFields" style="display:none">
+            <div class="form-group">
+                <label>Correct Answer (accept variations separated by | )</label>
+                <input type="text" name="correctAnswerFib" placeholder="e.g., Manila|manila|MANILA" />
+                <small>Separate accepted answers with | (pipe). Example: "Manila|manila"</small>
+            </div>
+        </div>
+
+        <!-- Long Answer / Essay -->
+        <div id="longFields" style="display:none">
+            <div class="form-group">
+                <label>Grading</label>
+                <p class="text-muted">This question requires manual grading by the teacher.</p>
+            </div>
+            <div class="form-group">
+                <label>Sample Answer (optional, for reference)</label>
+                <textarea name="sampleAnswer" rows="3" placeholder="Provide a sample correct answer for reference"></textarea>
+            </div>
+        </div>
+
+        <!-- Matching Type -->
+        <div id="matchFields" style="display:none">
+            <div class="form-group">
+                <label>Left Side Items (one per line, max 4)</label>
+                <textarea name="matchLeft" rows="4" placeholder="1. Apple&#10;2. Banana&#10;3. Cherry&#10;4. Date"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Right Side Items (one per line, same order as left for correct matching)</label>
+                <textarea name="matchRight" rows="4" placeholder="A. Red&#10;B. Yellow&#10;C. Red&#10;D. Brown"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Correct Match Order (e.g., ABDC means item 1=A, 2=B, 3=D, 4=C)</label>
+                <input type="text" name="correctAnswerMatch" placeholder="e.g., ABDC" maxlength="4" />
+            </div>
+        </div>
+
+        <!-- Ordering / Drag & Drop -->
+        <div id="orderFields" style="display:none">
+            <div class="form-group">
+                <label>Items in Correct Order (one per line, max 6)</label>
+                <textarea name="orderItems" rows="6" placeholder="First item&#10;Second item&#10;Third item&#10;Fourth item"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Correct Order (e.g., 3142 means: 3rd item is first, 1st is second, etc.)</label>
+                <input type="text" name="correctAnswerOrder" placeholder="e.g., 3142" />
+                <small>Numbers represent positions in the list above (1-indexed)</small>
+            </div>
         </div>
 
         <button type="submit" class="btn btn-primary btn-block">Add Question</button>
@@ -83,8 +137,9 @@
         @foreach (var q in ViewBag.ExistingQuestions)
         {
             <div class="question-item">
-                <span class="q-number">Q@(qNum++)</span>
+                <span class="q-number">@(qNum++)</span>
                 <span class="q-text">@q.Text</span>
+                <span class="q-type-badge">@q.Type</span>
                 <span class="q-answer">Answer: @q.CorrectAnswer</span>
             </div>
         }
@@ -92,20 +147,34 @@
 }
 
 <script>
-    function toggleOptions() {
+    function toggleQuestionFields() {
         var type = document.getElementById('questionType').value;
-        var extra = document.getElementById('extraOptions');
-        var correctSelect = document.getElementById('correctAnswer');
-        if (type === 'TrueFalse') {
-            extra.style.display = 'none';
-            document.getElementById('optA').value = 'True';
-            document.getElementById('optB').value = 'False';
-            correctSelect.innerHTML = '<option value="A">True</option><option value="B">False</option>';
-        } else {
-            extra.style.display = 'block';
+        document.getElementById('mcFields').style.display = 'none';
+        document.getElementById('fibFields').style.display = 'none';
+        document.getElementById('longFields').style.display = 'none';
+        document.getElementById('matchFields').style.display = 'none';
+        document.getElementById('orderFields').style.display = 'none';
+
+        if (type === 'MultipleChoice') {
+            document.getElementById('mcFields').style.display = 'block';
+            document.getElementById('extraOptions').style.display = 'block';
             document.getElementById('optA').value = '';
             document.getElementById('optB').value = '';
-            correctSelect.innerHTML = '<option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>';
+            document.getElementById('correctAnswer').innerHTML = '<option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>';
+        } else if (type === 'TrueFalse') {
+            document.getElementById('mcFields').style.display = 'block';
+            document.getElementById('extraOptions').style.display = 'none';
+            document.getElementById('optA').value = 'True';
+            document.getElementById('optB').value = 'False';
+            document.getElementById('correctAnswer').innerHTML = '<option value="A">True</option><option value="B">False</option>';
+        } else if (type === 'FillInBlank') {
+            document.getElementById('fibFields').style.display = 'block';
+        } else if (type === 'LongAnswer') {
+            document.getElementById('longFields').style.display = 'block';
+        } else if (type === 'MatchingType') {
+            document.getElementById('matchFields').style.display = 'block';
+        } else if (type === 'Ordering') {
+            document.getElementById('orderFields').style.display = 'block';
         }
     }
 </script>

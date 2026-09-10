@@ -27,29 +27,19 @@
 <form asp-action="SubmitExam" method="post" id="examForm">
     <input type="hidden" name="examId" value="@Model.Id" />
 
+    @{ int qIdx = 1; }
     @foreach (var question in Model.Questions.OrderBy(q => q.Id))
     {
         <div class="question-card exam-question">
             <div class="question-header">
-                <span class="q-number">Question @(Model.Questions.ToList().IndexOf(question) + 1)</span>
+                <span class="q-number">Question @(qIdx++)</span>
                 <span class="q-points">@question.Points pts</span>
             </div>
             <p class="question-text">@question.Text</p>
 
-            <div class="answer-options">
-                @if (question.Type == CBAssessment.Models.QuestionType.TrueFalse)
-                {
-                    <label class="answer-option">
-                        <input type="radio" name="answers[@question.Id]" value="A" />
-                        <span class="option-text">True</span>
-                    </label>
-                    <label class="answer-option">
-                        <input type="radio" name="answers[@question.Id]" value="B" />
-                        <span class="option-text">False</span>
-                    </label>
-                }
-                else
-                {
+            @if (question.Type == CBAssessment.Models.QuestionType.MultipleChoice)
+            {
+                <div class="answer-options">
                     <label class="answer-option">
                         <input type="radio" name="answers[@question.Id]" value="A" />
                         <span class="option-text">A. @question.OptionA</span>
@@ -72,23 +62,117 @@
                             <span class="option-text">D. @question.OptionD</span>
                         </label>
                     }
+                </div>
+            }
+            else if (question.Type == CBAssessment.Models.QuestionType.TrueFalse)
+            {
+                <div class="answer-options">
+                    <label class="answer-option">
+                        <input type="radio" name="answers[@question.Id]" value="A" />
+                        <span class="option-text">True</span>
+                    </label>
+                    <label class="answer-option">
+                        <input type="radio" name="answers[@question.Id]" value="B" />
+                        <span class="option-text">False</span>
+                    </label>
+                </div>
+            }
+            else if (question.Type == CBAssessment.Models.QuestionType.FillInBlank)
+            {
+                <div class="answer-options">
+                    <input type="text" name="answers[@question.Id]" class="fill-blank-input"
+                           placeholder="Type your answer here" required />
+                </div>
+            }
+            else if (question.Type == CBAssessment.Models.QuestionType.LongAnswer)
+            {
+                <div class="answer-options">
+                    <textarea name="longAnswers[@question.Id]" class="long-answer-input"
+                              rows="6" placeholder="Write your answer here..." required></textarea>
+                </div>
+            }
+            else if (question.Type == CBAssessment.Models.QuestionType.MatchingType)
+            {
+                var pairs = System.Text.Json.JsonSerializer.Deserialize<MatchingData>(question.MatchingPairs ?? "{}");
+                if (pairs?.Left != null && pairs?.Right != null)
+                {
+                    var shuffledRight = pairs.Right.OrderBy(x => Guid.NewGuid()).ToList();
+                    <div class="matching-container">
+                        <div class="matching-row header">
+                            <span class="match-col">Item</span>
+                            <span class="match-col">Match</span>
+                        </div>
+                        @for (int i = 0; i < pairs.Left.Length; i++)
+                        {
+                            <div class="matching-row">
+                                <span class="match-col">@pairs.Left[i]</span>
+                                <select name="answers[@question.Id]" class="match-select" data-index="@i">
+                                    <option value="">Select...</option>
+                                    @for (int j = 0; j < shuffledRight.Count; j++)
+                                    {
+                                        <option value="@(char.ConvertFromUtf32(65 + j))">@shuffledRight[j]</option>
+                                    }
+                                </select>
+                            </div>
+                        }
+                    </div>
                 }
-            </div>
+            }
+            else if (question.Type == CBAssessment.Models.QuestionType.Ordering)
+            {
+                var items = System.Text.Json.JsonSerializer.Deserialize<string[]>(question.OrderingItems ?? "[]") ?? Array.Empty<string>();
+                var shuffled = items.OrderBy(x => Guid.NewGuid()).ToList();
+                <div class="ordering-container">
+                    <p class="ordering-hint">Arrange the items in the correct order by selecting the position (1, 2, 3...)</p>
+                    @for (int i = 0; i < shuffled.Count; i++)
+                    {
+                        <div class="ordering-row">
+                            <span class="order-item-text">@shuffled[i]</span>
+                            <select name="answers[@question.Id]" class="order-select" data-item="@shuffled[i]">
+                                <option value="">Position</option>
+                                @for (int pos = 1; pos <= shuffled.Count; pos++)
+                                {
+                                    <option value="@pos">@pos</option>
+                                }
+                            </select>
+                        </div>
+                    }
+                </div>
+                <input type="hidden" name="answers[@question.Id]" id="order_@question.Id" value="" />
+            }
         </div>
     }
 
     <div class="submit-section">
-        <button type="submit" class="btn btn-primary btn-lg" onclick="return confirm('Submit your exam?')">
+        <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
             Submit Exam
         </button>
     </div>
 </form>
 
 <script>
+    document.getElementById('examForm').addEventListener('submit', function(e) {
+        document.querySelectorAll('.ordering-container').forEach(function(container) {
+            var select = container.querySelector('select');
+            var hidden = container.closest('.question-card').querySelector('input[type="hidden"][id^="order_"]');
+            if (select && hidden) {
+                var selects = container.querySelectorAll('.order-select');
+                var order = '';
+                selects.forEach(function(s) { order += s.value; });
+                hidden.value = order;
+            }
+        });
+    });
+
+    document.getElementById('submitBtn').addEventListener('click', function(e) {
+        if (!confirm('Submit your exam?')) {
+            e.preventDefault();
+        }
+    });
+
     (function() {
         var totalSeconds = @Model.TimeLimitMinutes * 60;
         var display = document.getElementById('timerDisplay');
-
         var timer = setInterval(function() {
             totalSeconds--;
             if (totalSeconds <= 0) {
@@ -99,10 +183,17 @@
             var mins = Math.floor(totalSeconds / 60);
             var secs = totalSeconds % 60;
             display.textContent = 'Time Remaining: ' + mins + ':' + (secs < 10 ? '0' : '') + secs;
-
             if (totalSeconds < 300) {
                 document.getElementById('timerBar').classList.add('timer-warning');
             }
         }, 1000);
     })();
 </script>
+
+@functions {
+    public class MatchingData
+    {
+        public string[]? Left { get; set; }
+        public string[]? Right { get; set; }
+    }
+}

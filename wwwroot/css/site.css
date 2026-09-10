@@ -754,6 +754,142 @@ body {
     font-style: italic;
 }
 
+/* Fill in the Blank */
+.fill-blank-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 1rem;
+    transition: border-color 0.2s;
+}
+
+.fill-blank-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+}
+
+/* Long Answer */
+.long-answer-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 1rem;
+    resize: vertical;
+    min-height: 120px;
+    font-family: inherit;
+}
+
+.long-answer-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+}
+
+.long-answer-review {
+    margin-top: 0.5rem;
+}
+
+.long-answer-text {
+    background: var(--bg);
+    padding: 0.75rem;
+    border-radius: var(--radius);
+    margin: 0.5rem 0;
+    white-space: pre-wrap;
+    font-size: 0.9rem;
+}
+
+.sample-answer {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    padding: 0.75rem;
+    border-radius: var(--radius);
+    margin: 0.5rem 0;
+    font-size: 0.85rem;
+}
+
+/* Matching Type */
+.matching-container {
+    margin-top: 0.5rem;
+}
+
+.matching-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.matching-row.header {
+    font-weight: 600;
+    color: var(--text-light);
+    font-size: 0.85rem;
+}
+
+.match-col {
+    flex: 1;
+}
+
+.match-select {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+}
+
+/* Ordering / Drag & Drop */
+.ordering-container {
+    margin-top: 0.5rem;
+}
+
+.ordering-hint {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    margin-bottom: 0.5rem;
+}
+
+.ordering-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.6rem 0.75rem;
+    background: var(--bg);
+    border-radius: var(--radius);
+    margin-bottom: 0.4rem;
+}
+
+.order-item-text {
+    flex: 1;
+    font-size: 0.9rem;
+}
+
+.order-select {
+    width: 80px;
+    padding: 0.4rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+}
+
+/* Pending Review */
+.review-question.pending {
+    border-left: 4px solid var(--warning);
+}
+
+.pending-icon {
+    color: var(--warning);
+}
+
+/* Text muted helper */
+.text-muted {
+    color: var(--text-light);
+    font-size: 0.85rem;
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
     .nav-toggle {

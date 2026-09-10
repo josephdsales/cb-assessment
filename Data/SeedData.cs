@@ -107,6 +107,86 @@ public static class SeedData
         };
         context.Questions.AddRange(engQuestions);
         context.SaveChanges();
+
+        var scienceExam = new Exam
+        {
+            Title = "Science Mixed Quiz",
+            Description = "A quiz with different question types.",
+            SubjectId = subjects[3].Id,
+            TeacherId = teacher.Id,
+            TimeLimitMinutes = 25,
+            Status = ExamStatus.Active,
+            StartTime = DateTime.Now.AddDays(-1),
+            EndTime = DateTime.Now.AddDays(7)
+        };
+        context.Exams.Add(scienceExam);
+        context.SaveChanges();
+
+        var scienceQuestions = new List<Question>
+        {
+            new Question
+            {
+                Text = "What is the chemical symbol for water?",
+                Type = QuestionType.FillInBlank,
+                CorrectAnswer = "H2O|h2o",
+                Points = 2,
+                ExamId = scienceExam.Id,
+                TeacherId = teacher.Id
+            },
+            new Question
+            {
+                Text = "Explain the process of photosynthesis.",
+                Type = QuestionType.LongAnswer,
+                CorrectAnswer = "MANUAL",
+                SampleAnswer = "Photosynthesis is the process by which green plants use sunlight, water, and carbon dioxide to produce glucose and oxygen. It occurs in the chloroplasts of plant cells using chlorophyll.",
+                RequiresManualGrading = true,
+                Points = 5,
+                ExamId = scienceExam.Id,
+                TeacherId = teacher.Id
+            },
+            new Question
+            {
+                Text = "Match the planet with its characteristic.",
+                Type = QuestionType.MatchingType,
+                MatchingPairs = "{\"Left\":[\"1. Mercury\",\"2. Venus\",\"3. Earth\",\"4. Mars\"],\"Right\":[\"A. Closest to Sun\",\"B. Hottest planet\",\"C. Has life\",\"D. Red planet\"]}",
+                CorrectAnswer = "ABCD",
+                Points = 4,
+                ExamId = scienceExam.Id,
+                TeacherId = teacher.Id
+            },
+            new Question
+            {
+                Text = "Arrange the planets from the Sun outward (first 4).",
+                Type = QuestionType.Ordering,
+                OrderingItems = "[\"Mercury\",\"Venus\",\"Earth\",\"Mars\"]",
+                CorrectAnswer = "1234",
+                Points = 4,
+                ExamId = scienceExam.Id,
+                TeacherId = teacher.Id
+            },
+            new Question
+            {
+                Text = "The powerhouse of the cell is the ___.",
+                Type = QuestionType.FillInBlank,
+                CorrectAnswer = "mitochondria|Mitochondria|MITOCHONDRIA",
+                Points = 2,
+                ExamId = scienceExam.Id,
+                TeacherId = teacher.Id
+            },
+            new Question
+            {
+                Text = "Explain the difference between weather and climate.",
+                Type = QuestionType.LongAnswer,
+                CorrectAnswer = "MANUAL",
+                SampleAnswer = "Weather refers to short-term atmospheric conditions (days/weeks), while climate refers to long-term patterns of weather in a region (30+ years).",
+                RequiresManualGrading = true,
+                Points = 5,
+                ExamId = scienceExam.Id,
+                TeacherId = teacher.Id
+            }
+        };
+        context.Questions.AddRange(scienceQuestions);
+        context.SaveChanges();
     }
 }
 

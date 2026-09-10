@@ -70,7 +70,8 @@ public class StudentController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> SubmitExam(int examId, Dictionary<int, string> answers)
+    public async Task<IActionResult> SubmitExam(int examId, Dictionary<int, string> answers,
+        Dictionary<int, string>? longAnswers)
     {
         var studentId = GetUserId();
         var exam = await _context.Exams
@@ -85,17 +86,62 @@ public class StudentController : Controller
 
         foreach (var question in exam.Questions)
         {
-            var selectedAnswer = answers.ContainsKey(question.Id) ? answers[question.Id] : "";
-            var isCorrect = selectedAnswer == question.CorrectAnswer;
-            if (isCorrect) score += question.Points;
-
-            studentAnswers.Add(new StudentAnswer
+            var sa = new StudentAnswer
             {
                 QuestionId = question.Id,
-                SelectedAnswer = selectedAnswer ?? "",
-                IsCorrect = isCorrect
-            });
+                SelectedAnswer = "",
+                LongAnswerText = null,
+                IsCorrect = false,
+                IsPendingReview = false,
+                AwardedPoints = null
+            };
+
+            switch (question.Type)
+            {
+                case QuestionType.MultipleChoice:
+                case QuestionType.TrueFalse:
+                    var selected = answers.ContainsKey(question.Id) ? answers[question.Id] ?? "" : "";
+                    sa.SelectedAnswer = selected;
+                    sa.IsCorrect = selected == question.CorrectAnswer;
+                    if (sa.IsCorrect) score += question.Points;
+                    break;
+
+                case QuestionType.FillInBlank:
+                    var fibAnswer = answers.ContainsKey(question.Id) ? answers[question.Id] ?? "" : "";
+                    sa.SelectedAnswer = fibAnswer;
+                    var acceptedAnswers = question.CorrectAnswer.Split('|', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(a => a.Trim().ToLower()).ToArray();
+                    sa.IsCorrect = acceptedAnswers.Contains(fibAnswer.Trim().ToLower());
+                    if (sa.IsCorrect) score += question.Points;
+                    break;
+
+                case QuestionType.LongAnswer:
+                    var longText = longAnswers != null && longAnswers.ContainsKey(question.Id)
+                        ? longAnswers[question.Id] ?? "" : "";
+                    sa.LongAnswerText = longText;
+                    sa.IsPendingReview = true;
+                    sa.IsCorrect = false;
+                    break;
+
+                case QuestionType.MatchingType:
+                    var matchAnswer = answers.ContainsKey(question.Id) ? answers[question.Id] ?? "" : "";
+                    sa.SelectedAnswer = matchAnswer;
+                    sa.IsCorrect = string.Equals(matchAnswer, question.CorrectAnswer, StringComparison.OrdinalIgnoreCase);
+                    if (sa.IsCorrect) score += question.Points;
+                    break;
+
+                case QuestionType.Ordering:
+                    var orderAnswer = answers.ContainsKey(question.Id) ? answers[question.Id] ?? "" : "";
+                    sa.SelectedAnswer = orderAnswer;
+                    sa.IsCorrect = orderAnswer == question.CorrectAnswer;
+                    if (sa.IsCorrect) score += question.Points;
+                    break;
+            }
+
+            studentAnswers.Add(sa);
         }
+
+        var hasManualGrading = studentAnswers.Any(sa => sa.IsPendingReview);
 
         var examResult = new ExamResult
         {
@@ -140,6 +186,7 @@ public class StudentController : Controller
 
         ViewBag.StudentAnswers = studentAnswers;
         ViewBag.Percentage = result.TotalPoints > 0 ? (double)result.Score / result.TotalPoints * 100 : 0;
+        ViewBag.HasPendingReview = studentAnswers.Any(sa => sa.IsPendingReview);
 
         return View(result);
     }
