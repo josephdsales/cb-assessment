@@ -75,7 +75,7 @@ public class HomeController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Register(string fullName, string username, string password, string confirmPassword, UserRole role, string? classSection)
+    public async Task<IActionResult> Register(string fullName, string username, string password, string confirmPassword, string? classSection)
     {
         ViewBag.Sections = await _context.Sections.OrderBy(s => s.Name).ToListAsync();
 
@@ -108,8 +108,8 @@ public class HomeController : Controller
             FullName = fullName,
             Username = username,
             PasswordHash = BCryptHelper.HashPassword(password),
-            Role = role,
-            ClassSection = role == UserRole.Student ? classSection : null
+            Role = UserRole.Student,
+            ClassSection = classSection
         };
 
         _context.Users.Add(user);

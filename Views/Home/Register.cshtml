@@ -7,7 +7,7 @@
 <div class="auth-container">
     <div class="auth-card">
         <h1>Register</h1>
-        <p class="subtitle">Create your account</p>
+        <p class="subtitle">Create your student account</p>
 
         @if (ViewBag.Error != null)
         {
@@ -32,15 +32,8 @@
                 <input type="password" name="confirmPassword" required placeholder="Confirm password" />
             </div>
             <div class="form-group">
-                <label>Role</label>
-                <select name="role" id="roleSelect" onchange="toggleClassSection()">
-                    <option value="Student">Student</option>
-                    <option value="Teacher">Teacher</option>
-                </select>
-            </div>
-            <div class="form-group" id="classSectionGroup">
                 <label>Section</label>
-                <select name="classSection" id="classSectionSelect">
+                <select name="classSection" required>
                     <option value="">-- Select Section --</option>
                     @if (sections.Any())
                     {
@@ -61,10 +54,3 @@
         <p class="auth-link">Already have an account? <a asp-action="Login">Login here</a></p>
     </div>
 </div>
-
-<script>
-    function toggleClassSection() {
-        var role = document.getElementById('roleSelect').value;
-        document.getElementById('classSectionGroup').style.display = role === 'Student' ? 'block' : 'none';
-    }
-</script>
