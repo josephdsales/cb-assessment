@@ -7,12 +7,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
-var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL")
-    ?? builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? "Host=localhost;Database=cbassessment;Username=postgres;Password=postgres";
+var tursoUrl = Environment.GetEnvironmentVariable("TURSO_DATABASE_URL") ?? "";
+var tursoToken = Environment.GetEnvironmentVariable("TURSO_AUTH_TOKEN") ?? "";
+
+var connectionString = $"Data Source={tursoUrl};Auth Token={tursoToken}";
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(connectionString));
+    options.UseSqlite(connectionString));
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
