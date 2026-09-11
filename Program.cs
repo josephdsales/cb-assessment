@@ -7,28 +7,16 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
-var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") ?? "NOT_SET";
+var dbPath = Environment.GetEnvironmentVariable("DATABASE_URL") ?? "cbassessment.db";
+if (string.IsNullOrEmpty(dbPath) || dbPath == "NOT_SET")
+    dbPath = "cbassessment.db";
 
-if (!connectionString.Contains("Trust") && !connectionString.Contains("trust"))
-{
-    connectionString += ";Trust Server Certificate=true";
-}
+var connectionString = $"Data Source={dbPath}";
 
-if (!connectionString.Contains("Pool") && !connectionString.Contains("pool"))
-{
-    connectionString += ";Maximum Pool Size=3;Connection Idle Lifetime=30;Timeout=30;Command Timeout=30";
-}
-
-Console.WriteLine($"DATABASE_URL exists: {!string.IsNullOrEmpty(connectionString)}");
+Console.WriteLine($"Using database: {dbPath}");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(connectionString, npgsqlOptions =>
-    {
-        npgsqlOptions.EnableRetryOnFailure(5);
-        npgsqlOptions.CommandTimeout(30);
-    }));
-
-AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+    options.UseSqlite(connectionString));
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -46,16 +34,13 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        Console.WriteLine("Ensuring database exists...");
         db.Database.EnsureCreated();
-        Console.WriteLine("Database created successfully");
         SeedData.Initialize(scope.ServiceProvider);
-        Console.WriteLine("Seed data initialized");
+        Console.WriteLine("Database initialized successfully");
     }
     catch (Exception ex)
     {
         Console.WriteLine($"DATABASE ERROR: {ex.Message}");
-        Console.WriteLine($"INNER: {ex.InnerException?.Message}");
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
         logger.LogError(ex, "Database initialization failed");
     }
