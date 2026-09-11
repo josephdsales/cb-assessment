@@ -7,10 +7,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
-var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") ?? "";
+var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") ?? "NOT_SET";
+
+Console.WriteLine($"DATABASE_URL exists: {!string.IsNullOrEmpty(connectionString)}");
+Console.WriteLine($"DATABASE_URL length: {connectionString.Length}");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(connectionString));
+    options.UseNpgsql(connectionString, npgsqlOptions =>
+        npgsqlOptions.EnableRetryOnFailure(3)));
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -28,11 +32,16 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        Console.WriteLine("Ensuring database exists...");
         db.Database.EnsureCreated();
+        Console.WriteLine("Database created successfully");
         SeedData.Initialize(scope.ServiceProvider);
+        Console.WriteLine("Seed data initialized");
     }
     catch (Exception ex)
     {
+        Console.WriteLine($"DATABASE ERROR: {ex.Message}");
+        Console.WriteLine($"INNER: {ex.InnerException?.Message}");
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
         logger.LogError(ex, "Database initialization failed");
     }
