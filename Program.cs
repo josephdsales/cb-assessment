@@ -7,12 +7,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
-var dbDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "data");
-Directory.CreateDirectory(dbDir);
-var dbPath = Path.Combine(dbDir, "cbassessment.db");
+var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL")
+    ?? builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? "Host=localhost;Database=cbassessment;Username=postgres;Password=postgres";
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite($"Data Source={dbPath}"));
+    options.UseNpgsql(connectionString));
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -57,10 +57,7 @@ app.MapControllerRoute(
 
 app.MapGet("/health", () => Results.Ok("healthy"));
 
-app.MapGet("/error", (HttpContext ctx) =>
-{
-    var error = ctx.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>()?.Error;
-    return Results.Problem(error?.Message ?? "Unknown error", statusCode: 500);
-});
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+app.Urls.Add($"http://0.0.0.0:{port}");
 
 app.Run();
