@@ -9,6 +9,11 @@ builder.Services.AddControllersWithViews();
 
 var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") ?? "NOT_SET";
 
+if (!connectionString.Contains("Trust") && !connectionString.Contains("trust"))
+{
+    connectionString += ";Trust Server Certificate=true";
+}
+
 if (!connectionString.Contains("Pool") && !connectionString.Contains("pool"))
 {
     connectionString += ";Maximum Pool Size=3;Connection Idle Lifetime=30;Timeout=30;Command Timeout=30";
