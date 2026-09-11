@@ -7,13 +7,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
-var tursoUrl = Environment.GetEnvironmentVariable("TURSO_DATABASE_URL") ?? "";
-var tursoToken = Environment.GetEnvironmentVariable("TURSO_AUTH_TOKEN") ?? "";
-
-var connectionString = $"Data Source={tursoUrl};Auth Token={tursoToken}";
+var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") ?? "";
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseTurso(connectionString));
+    options.UseNpgsql(connectionString));
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
