@@ -9,12 +9,21 @@ builder.Services.AddControllersWithViews();
 
 var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") ?? "NOT_SET";
 
+if (!connectionString.Contains("Pool") && !connectionString.Contains("pool"))
+{
+    connectionString += ";Maximum Pool Size=3;Connection Idle Lifetime=30;Timeout=30;Command Timeout=30";
+}
+
 Console.WriteLine($"DATABASE_URL exists: {!string.IsNullOrEmpty(connectionString)}");
-Console.WriteLine($"DATABASE_URL length: {connectionString.Length}");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString, npgsqlOptions =>
-        npgsqlOptions.EnableRetryOnFailure(3)));
+    {
+        npgsqlOptions.EnableRetryOnFailure(5);
+        npgsqlOptions.CommandTimeout(30);
+    }));
+
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
