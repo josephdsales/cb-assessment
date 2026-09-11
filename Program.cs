@@ -13,7 +13,7 @@ var tursoToken = Environment.GetEnvironmentVariable("TURSO_AUTH_TOKEN") ?? "";
 var connectionString = $"Data Source={tursoUrl};Auth Token={tursoToken}";
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(connectionString));
+    options.UseTurso(connectionString));
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
